@@ -4,14 +4,15 @@ set -ux
 ################################################################################
 
 install_dotfiles () {
+    mv "$HOME/.config/nixpkgs" "$HOME/nixpkgs.bak" 2>/dev/null
     nix-shell -p git --run 'git clone https://github.com/henrirosten/dotfiles "$HOME/.config/nixpkgs"'
     if [ ! -f "$HOME/.config/nixpkgs/bootstrap-nixos.sh" ]; then
         echo "Error: failed to clone the dotfiles"
         exit 1
     fi
+    nix-env -e bat curl git htop less meld nix-info shellcheck tree vim vscode wget 
     mv "$HOME/.bashrc" "$HOME/.bashrc.bak" 2>/dev/null
     mv "$HOME/.profile" "$HOME/.profile.bak" 2>/dev/null
-    nix-env -e bat curl git htop less meld nix-info shellcheck tree vim vscode wget 
     if ! nix-shell '<home-manager>' -A install; then
         set +x
         echo "Error: home-manager installation failed."

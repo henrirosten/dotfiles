@@ -72,6 +72,7 @@ uninstall_nix () {
 }
 
 install_dotfiles () {
+    mv "$HOME/.config/nixpkgs" "$HOME/nixpkgs.bak" 2>/dev/null
     nix-shell -p git --run 'git clone https://github.com/henrirosten/dotfiles "$HOME/.config/nixpkgs"'
     if [ ! -f "$HOME/.config/nixpkgs/bootstrap-ubuntu.sh" ]; then
         echo "Error: failed to clone the dotfiles"
