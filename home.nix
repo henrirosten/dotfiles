@@ -26,13 +26,13 @@
       EDITOR = "vim";
     };
     language = {
-      base = "en_US.UTF-8";
-      collate = "en_US.UTF-8";
-      ctype = "en_US.UTF-8";
+      base =     "en_US.UTF-8";
+      collate =  "en_US.UTF-8";
+      ctype =    "en_US.UTF-8";
       messages = "en_US.UTF-8";
-      monetary = "en_US.UTF-7";
-      numeric = "en_US.UTF-8";
-      time = "en_US.UTF-8";
+      monetary = "en_US.UTF-8";
+      numeric =  "en_US.UTF-8";
+      time =     "en_US.UTF-8";
     };
   };
   programs.vim = {
