@@ -53,6 +53,11 @@ exit_unless_command_exists () {
 ################################################################################
 
 main () {
+    if ! echo $(uname -a) | grep -q "nixos"; then
+        "Error: current system is not NixOS"
+        exit 1
+    fi
+    exit_unless_command_exists "nix-channel"
     nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
     nix-channel --update
     install_dotfiles

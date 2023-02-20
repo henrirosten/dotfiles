@@ -49,6 +49,7 @@
   };
   programs.git = {
     enable = true;
+    package = pkgs.gitAndTools.gitFull;
     userName = "Henri Rosten";
     userEmail = "henri.rosten@unikie.com";
     extraConfig = {
