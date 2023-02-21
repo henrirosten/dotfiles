@@ -13,6 +13,7 @@
      stateVersion = "23.05";
      packages = with pkgs; [
         bat
+        csvkit
         curl
         htop
         less
@@ -114,20 +115,29 @@
       own-nix-info () {
           echo "nix-info:"
           nix-info -m
+          echo "nix-channel:"
+          echo " - root: $(sudo $(which nix-channel) --list)"
+          echo " - $USER: $(nix-channel --list)"
+          echo ""
           echo "nixpkgs:"
           echo " - nixpkgs version: $(nix-instantiate --eval -E '(import <nixpkgs> {}).lib.version')"
       }
 
       own-nix-clean () {
+          # delete old generations
+          nix-env --delete-generations old
+          # clean nix store
           nix-collect-garbage
-      }
-
-      own-nix-find-results () {
-          find . -type l | grep -i result
+          # delete logs
+          sudo rm -fr /nix/var/log/nix/drvs/
       }
 
       own-nix-env-installed () {
           nix-env --query "*"
+      }
+
+      own-nix-env-list-generations () {
+          nix-env --list-generations
       }
 
       own-nix-hm-installed () {

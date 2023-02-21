@@ -10,7 +10,7 @@ install_dotfiles () {
         echo "Error: failed to clone the dotfiles"
         exit 1
     fi
-    nix-env -e bat curl git htop less meld nix-info shellcheck tree vim vscode wget 
+    nix-env -e '*'
     mv "$HOME/.bashrc" "$HOME/.bashrc.bak" 2>/dev/null
     mv "$HOME/.profile" "$HOME/.profile.bak" 2>/dev/null
     if ! nix-shell '<home-manager>' -A install; then
