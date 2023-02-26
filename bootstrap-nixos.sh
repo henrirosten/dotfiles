@@ -4,7 +4,8 @@ set -ux
 ################################################################################
 
 install_dotfiles () {
-    mv "$HOME/.config/nixpkgs" "$HOME/nixpkgs.bak" 2>/dev/null
+    rm -fr "$HOME/nixpkgs.bak" 2>/dev/null
+    cp -r "$HOME/.config/nixpkgs" "$HOME/nixpkgs.bak" && rm -fr "$HOME/.config/nixpkgs" 2>/dev/null
     nix-shell -p git --run 'git clone https://github.com/henrirosten/dotfiles "$HOME/.config/nixpkgs"'
     if [ ! -f "$HOME/.config/nixpkgs/bootstrap-nixos.sh" ]; then
         echo "Error: failed to clone the dotfiles"

@@ -13,8 +13,9 @@
      stateVersion = "23.05";
      packages = with pkgs; [
         bat
-        csvkit
         curl
+        csvkit
+        fish
         htop
         less
         meld
@@ -79,18 +80,18 @@
       PROMPT_COLOR="1;32m"
       export PS1="\n\[\033[$PROMPT_COLOR\][\[\e]0;\u@\h: \w\a\]\u@\h:\w]\\$\[\033[0m\] "
 
-      own-minhist() {
+      own-minhist () {
           cp ~/.bash_eternal_history ~/.bash_eternal_history.old
           history -w /dev/stdout | nl | sort -k2 -k 1,1nr | uniq -f1 | sort -n | cut -f2 > ~/.bash_eternal_history
           echo "Wrote ~/.bash_eternal_history. Old history in ~/.bash_eternal_history.old"
       }
     
-      own-allfiles() {
+      own-allfiles () {
           sudo find / -type f ! -path "/dev/*" ! -path "/sys/*" ! -path "/proc/*" ! -path "/run/*" > ~/allfiles.txt
           echo "Wrote ~/allfiles.txt"
       }
     
-      own-findlargest() {
+      own-findlargest () {
           if [ -z "$1" ]; then
               findpath="$PWD"
           else
@@ -99,9 +100,24 @@
           find "$findpath" -type f -exec du -h {} + | sort -r -h | head -n 20
       }
 
+      own-findlinks () {
+          if [ -z "$1" ]; then
+              findpath="$PWD"
+          else
+              findpath="$1"
+          fi
+          find "$findpath" -type l -exec echo -n "{} -> " \; -exec readlink -f {} \;
+      }
+
+      own-nix-store-symlinks () {
+          # Find all symlinks in HOME that point somewhere in /nix/store.
+          # grep -v removes (home-manager managed) dotfiles from the output results.
+          own-findlinks "$HOME" | grep "/nix/store" | grep -v "$HOME\/\."
+      }
+
       own-nix-upgrade () {
           nix-channel --update
-          sudo $(which nix-channel) --update
+          sudo "$(which nix-channel)" --update
           nix-env -u '*'
           home-manager switch
           if command -v systemctl &> /dev/null; then
@@ -116,7 +132,7 @@
           echo "nix-info:"
           nix-info -m
           echo "nix-channel:"
-          echo " - root: $(sudo $(which nix-channel) --list)"
+          echo " - root: $(sudo "$(which nix-channel)" --list)"
           echo " - $USER: $(nix-channel --list)"
           echo ""
           echo "nixpkgs:"
@@ -130,6 +146,12 @@
           nix-collect-garbage
           # delete logs
           sudo rm -fr /nix/var/log/nix/drvs/
+          # notify if it seems some symlinks prevent full cleanup
+          if own-nix-store-symlinks > /dev/null 2>&1; then
+              echo ""
+              echo "Note: following symlinks in '$HOME' prevent nix-collect-garbage to fully clean the store:"
+              own-nix-store-symlinks
+          fi  
       }
 
       own-nix-env-installed () {

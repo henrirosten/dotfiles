@@ -80,6 +80,8 @@ install_dotfiles () {
     fi
     mv "$HOME/.bashrc" "$HOME/.bashrc.bak" 2>/dev/null
     mv "$HOME/.profile" "$HOME/.profile.bak" 2>/dev/null
+    mv "$HOME/.vim" "$HOME/.vim.bak" 2>/dev/null
+    mv "$HOME/.vimrc" "$HOME/.vimrc.bak" 2>/dev/null
     if ! nix-shell '<home-manager>' -A install; then
         set +x
         echo "Error: home-manager installation failed."
