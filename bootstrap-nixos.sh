@@ -6,7 +6,7 @@ set -ux
 install_dotfiles () {
     rm -fr "$HOME/nixpkgs.bak" 2>/dev/null
     cp -r "$HOME/.config/nixpkgs" "$HOME/nixpkgs.bak" && rm -fr "$HOME/.config/nixpkgs" 2>/dev/null
-    nix-shell -p git --run 'git clone https://github.com/henrirosten/dotfiles "$HOME/.config/nixpkgs"'
+    nix-shell -p git --run "git clone https://github.com/henrirosten/dotfiles \"$HOME/.config/nixpkgs\""
     if [ ! -f "$HOME/.config/nixpkgs/bootstrap-nixos.sh" ]; then
         echo "Error: failed to clone the dotfiles"
         exit 1
@@ -45,7 +45,7 @@ outro () {
 }
 
 exit_unless_command_exists () {
-    if ! [ -x "$(command -v "$1")" ]; then
+    if ! command -v "$1" 2> /dev/null; then
         echo "Error: command '$1' is not installed" >&2
         exit 1
     fi
@@ -54,7 +54,7 @@ exit_unless_command_exists () {
 ################################################################################
 
 main () {
-    if ! echo $(uname -a) | grep -q "nixos"; then
+    if ! uname -a | grep -q "nixos"; then
         "Error: current system is not NixOS"
         exit 1
     fi
