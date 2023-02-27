@@ -176,6 +176,10 @@
     '';
   };
   xdg.configFile."nix/nix.conf".text = ''
+    # Add your configuration and trusted public keys here
+    substituters = https://cache.nixos.org/
+    trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
+    build-users-group = nixbld
     experimental-features = nix-command flakes
   '';
 
