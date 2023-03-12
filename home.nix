@@ -79,6 +79,9 @@
       #PROMPT_COLOR="1;90m"
       PROMPT_COLOR="1;32m"
       export PS1="\n\[\033[$PROMPT_COLOR\][\[\e]0;\u@\h: \w\a\]\u@\h:\w]\\$\[\033[0m\] "
+      export XDG_DATA_DIRS=$HOME/.nix-profile/share:$XDG_DATA_DIRS
+      # Disable ctrl-s (pause terminal output)
+      stty -ixon
 
       own-minhist () {
           cp ~/.bash_eternal_history ~/.bash_eternal_history.old
@@ -176,9 +179,6 @@
     '';
   };
   xdg.configFile."nix/nix.conf".text = ''
-    # Add your configuration and trusted public keys here
-    substituters = https://cache.nixos.org/
-    trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
     build-users-group = nixbld
     experimental-features = nix-command flakes
   '';

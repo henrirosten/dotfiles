@@ -4,6 +4,7 @@ set -ux
 ################################################################################
 
 NIX_ENV_PATH=""
+MYDIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 apt_update () {
     sudo apt-get update -y
@@ -25,7 +26,6 @@ install_nix () {
     fi
 
     mkdir -p "$HOME/.config/nix"
-    # echo "experimental-features = nix-command flakes" >> "$HOME/.config/nix/nix.conf"
     if [ -f "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
         NIX_ENV_PATH="$HOME/.nix-profile/etc/profile.d/nix.sh"
         # shellcheck source=/dev/null
@@ -38,6 +38,18 @@ install_nix () {
     fi
     nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
     nix-channel --update
+    substituters="substituters = \
+        https://cache.vedenemo.dev \
+        https://cache.ssrcdevops.tii.ae \
+        https://cache.nixos.org"
+    trustedpublickeys="trusted-public-keys = \
+        cache.vedenemo.dev:RGHheQnb6rXGK5v9gexJZ8iWTPX6OcSeS56YeXYzOcg= \
+        cache.ssrcdevops.tii.ae:oOrzj9iCppf+me5/3sN/BxEkp5SaFkHfKTPPZ97xXQk= \
+        cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+    experimentalfeatures="experimental-features = nix-command flakes"
+    sudo bash -c "echo $substituters >>/etc/nix/nix.conf"
+    sudo bash -c "echo $trustedpublickeys >>/etc/nix/nix.conf"
+    sudo bash -c "echo $experimentalfeatures >>/etc/nix/nix.conf"
     if systemctl list-units | grep -iq "nix-daemon"; then
         sudo systemctl restart nix-daemon
     fi
@@ -56,7 +68,7 @@ uninstall_nix () {
         sudo rm -rf /nix
     fi
     if [ -d "/etc/nix" ]; then
-        sudo rm -rf /etc/nix
+        sudo mv -f /etc/nix /etc/nix.bak
     fi
     sudo find /etc -iname "*backup-before-nix*" | sudo xargs rm -f
     sed -i "/\/nix/d" "$HOME/.profile"
@@ -72,16 +84,21 @@ uninstall_nix () {
 }
 
 install_dotfiles () {
-    mv "$HOME/.config/nixpkgs" "$HOME/nixpkgs.bak" 2>/dev/null
-    nix-shell -p git --run "git clone https://github.com/henrirosten/dotfiles \"$HOME/.config/nixpkgs\""
-    if [ ! -f "$HOME/.config/nixpkgs/bootstrap-ubuntu.sh" ]; then
+    mv -f "$HOME/.config/nixpkgs" "$HOME/nixpkgs.bak" 2>/dev/null
+    if [ -f "$MYDIR/home.nix" ]; then
+        mkdir -p "$HOME/.config/nixpkgs"
+        cp  "$MYDIR/home.nix" "$HOME/.config/nixpkgs/"
+    else
+        nix-shell -p git --run "git clone https://github.com/henrirosten/dotfiles \"$HOME/.config/nixpkgs\""
+    fi
+    if [ ! -f "$HOME/.config/nixpkgs/home.nix" ]; then
         echo "Error: failed to clone the dotfiles"
         exit 1
     fi
-    mv "$HOME/.bashrc" "$HOME/.bashrc.bak" 2>/dev/null
-    mv "$HOME/.profile" "$HOME/.profile.bak" 2>/dev/null
-    mv "$HOME/.vim" "$HOME/.vim.bak" 2>/dev/null
-    mv "$HOME/.vimrc" "$HOME/.vimrc.bak" 2>/dev/null
+    mv -f "$HOME/.bashrc" "$HOME/.bashrc.bak" 2>/dev/null
+    mv -f "$HOME/.profile" "$HOME/.profile.bak" 2>/dev/null
+    mv -f "$HOME/.vim" "$HOME/.vim.bak" 2>/dev/null
+    mv -f "$HOME/.vimrc" "$HOME/.vimrc.bak" 2>/dev/null
     if ! nix-shell '<home-manager>' -A install; then
         set +x
         echo "Error: home-manager installation failed."
