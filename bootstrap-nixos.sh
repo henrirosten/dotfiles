@@ -8,15 +8,16 @@ MYDIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 ################################################################################
 
 install_dotfiles () {
-    rm -fr "$HOME/nixpkgs.bak" 2>/dev/null
-    cp -r "$HOME/.config/nixpkgs" "$HOME/nixpkgs.bak" && rm -fr "$HOME/.config/nixpkgs" 2>/dev/null
+    HMCONFDIR="$HOME/.config/home-manager"
+    rm -fr "$HOME/home-manager.bak" 2>/dev/null
+    cp -r "$HMCONFDIR" "$HOME/home-manager.bak" && rm -fr "$HMCONFDIR" 2>/dev/null
     if [ -f "$MYDIR/home.nix" ]; then
-        mkdir -p "$HOME/.config/nixpkgs"
-        cp  "$MYDIR/home.nix" "$HOME/.config/nixpkgs/"
+        mkdir -p "$HMCONFDIR"
+        cp  "$MYDIR/home.nix" "$HMCONFDIR/"
     else
-        nix-shell -p git --run "git clone https://github.com/henrirosten/dotfiles \"$HOME/.config/nixpkgs\""
+        nix-shell -p git --run "git clone https://github.com/henrirosten/dotfiles \"$HMCONFDIR\""
     fi
-    if [ ! -f "$HOME/.config/nixpkgs/home.nix" ]; then
+    if [ ! -f "$HMCONFDIR/home.nix" ]; then
         echo "Error: failed to clone the dotfiles"
         exit 1
     fi

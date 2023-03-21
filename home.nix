@@ -265,7 +265,7 @@
       " Line numbers
       set number
       " Allow mouse to move cursor around
-      set mouse=a
+      set mouse=r
       set cursorline
       
       """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -283,11 +283,20 @@
       set background=dark
 
       " Airline
-      if !exists('g:airline_symbols')
-          let g:airline_symbols = {}
-      endif
+      let g:airline_symbols = {}
       let g:airline#extensions#tabline#enabled = 1
-      let g:airline#extensions#tabline#show_buffers = 0
+      let g:airline#extensions#tabline#show_buffers = 1
+      let g:airline_left_sep = ' '
+      let g:airline_right_sep = ' '
+      let g:airline_symbols.colnr = ':'
+      let g:airline_symbols.crypt = ' '
+      let g:airline_symbols.linenr = ' '
+      let g:airline_symbols.maxlinenr = ' '
+      let g:airline_symbols.branch = ' '
+      let g:airline_symbols.paste = 'p'
+      let g:airline_symbols.spell = 's'
+      let g:airline_symbols.notexists = ' '
+      let g:airline_symbols.whitespace = ' '
       
       " Set extra options when running in GUI mode
       if has("gui_running")
