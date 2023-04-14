@@ -63,7 +63,7 @@ uninstall_nix () {
     if grep -q nixbld /etc/group; then
         sudo groupdel nixbld
     fi
-    rm -rf "$HOME/"{.nix-channels,.nix-defexpr,.nix-profile,.config/nixpkgs,.config/nix,.config/home-manager}
+    rm -rf "$HOME/"{.nix-channels,.nix-defexpr,.nix-profile,.config/nixpkgs,.config/nix,.config/home-manager,.local/state/nix,.local/state/home-manager}
     if [ -d "/nix" ]; then
         sudo rm -rf /nix
     fi
