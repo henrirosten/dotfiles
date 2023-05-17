@@ -28,13 +28,13 @@
       EDITOR = "vim";
     };
     language = {
-      base =     "en_US.UTF-8";
-      collate =  "en_US.UTF-8";
-      ctype =    "en_US.UTF-8";
-      messages = "en_US.UTF-8";
-      monetary = "en_US.UTF-8";
-      numeric =  "en_US.UTF-8";
-      time =     "en_US.UTF-8";
+      base =     "en_US.utf8";
+      collate =  "en_US.utf8";
+      ctype =    "en_US.utf8";
+      messages = "en_US.utf8";
+      monetary = "en_US.utf8";
+      numeric =  "en_US.utf8";
+      time =     "en_US.utf8";
     };
   };
   programs.vim = {
@@ -175,7 +175,7 @@
       grep = "grep --color=auto";
     };
     initExtra = ''
-      if [ -z ''${LANG+x} ]; then LANG=en_US.UTF-8; fi
+      if [ -z ''${LANG+x} ]; then LANG=en_US.utf8; fi
     '';
   };
   xdg.configFile."nix/nix.conf".text = ''
