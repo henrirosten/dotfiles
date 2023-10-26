@@ -33,6 +33,10 @@
     };
     # https://nixos.wiki/wiki/FAQ/When_do_I_update_stateVersion
     stateVersion = "23.05";
+    language = {
+      base =     "en_US.utf8";
+      ctype =    "en_US.utf8";
+    };
   };
   programs.man.enable = true;
   programs.bash = {

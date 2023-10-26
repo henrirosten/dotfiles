@@ -24,29 +24,18 @@ install_nix () {
         echo "Error: unknown installation type: '$type'"
         exit 1
     fi
-    mkdir -p "$HOME/.config/nix"
-    if [ -f "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
-        NIX_ENV_PATH="$HOME/.nix-profile/etc/profile.d/nix.sh"
-        # shellcheck source=/dev/null
-        source "$NIX_ENV_PATH" 
-    fi
-    if [ -f "/etc/profile.d/nix.sh" ]; then
-        NIX_ENV_PATH="/etc/profile.d/nix.sh"
-        # shellcheck source=/dev/null
-        source "$NIX_ENV_PATH"
-    fi
-    nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
-    nix-channel --update
+    # Fix https://github.com/nix-community/home-manager/issues/3734:
+    sudo mkdir -m 0755 -p /nix/var/nix/{profiles,gcroots}/per-user/$USER
+    sudo chown -R $USER:nixbld /nix/var/nix/profiles/per-user/$USER
     experimentalfeatures="experimental-features = nix-command flakes"
     sudo bash -c "echo $experimentalfeatures >>/etc/nix/nix.conf"
+    # Re-start nix-daemon
     if systemctl list-units | grep -iq "nix-daemon"; then
         sudo systemctl restart nix-daemon
-    fi
-    if ! nix-shell '<home-manager>' -A install; then
-        set +x
-        echo "Error: home-manager installation failed."
-        echo "Manually re-install following the fix proposal from home-manager."
-        exit 1
+        if ! systemctl status nix-daemon; then
+            echo "Error: nix-daemon failed to start"
+            exit 1
+        fi
     fi
 }
 
@@ -59,6 +48,7 @@ uninstall_nix () {
         sudo groupdel nixbld
     fi
     rm -rf "$HOME/"{.nix-channels,.nix-defexpr,.nix-profile,.config/nixpkgs,.config/nix,.config/home-manager,.local/state/nix,.local/state/home-manager}
+    rm -rf /etc/profile.d/nix.sh
     if [ -d "/nix" ]; then
         sudo rm -rf /nix
     fi
@@ -76,6 +66,7 @@ uninstall_nix () {
         sudo systemctl daemon-reload
         sudo systemctl reset-failed
     fi
+    unset NIX_PATH
 }
 
 outro () {
@@ -86,7 +77,10 @@ outro () {
         echo "Installed nixpkgs version: $nixpkgs_ver"
     else
         echo "Failed reading installed nixpkgs version"
+        exit 1
     fi
+    echo ""
+    echo "Open a new terminal for the changes to take impact"
     echo ""
 }
 

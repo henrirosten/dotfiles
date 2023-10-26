@@ -1,19 +1,20 @@
 {
   inputs = {
+    
     # Nixpkgs
     # unstable:
-    # nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     # release:
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.05";
+    # nixpkgs.url = "github:nixos/nixpkgs/nixos-23.05";
 
     # Home manager
     home-manager = {
       inputs.nixpkgs.follows = "nixpkgs";
       # HM version must match the nixpkgs.url version above (release, unstable)
       # unstable:
-      # url = "github:nix-community/home-manager";
+      url = "github:nix-community/home-manager";
       # release:
-      url = "github:nix-community/home-manager/release-23.05";
+      # url = "github:nix-community/home-manager/release-23.05";
     };
   };
 

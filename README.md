@@ -17,7 +17,7 @@ Install Nix package manager either following the instructions from https://nixos
 $ ./bootstrap-ubuntu.sh
 ```
 
-Then, follow the instructions from the [NixOS](.#nixos) section.
+Then, start a new shell and follow the instructions from the [NixOS](.#nixos) section.
 
 ### NixOS
 
