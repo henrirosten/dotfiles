@@ -3,9 +3,6 @@ set -ux
 
 ################################################################################
 
-NIX_ENV_PATH=""
-MYDIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
 apt_update () {
     sudo apt-get update -y
     sudo apt-get upgrade -y
@@ -25,10 +22,18 @@ install_nix () {
         exit 1
     fi
     # Fix https://github.com/nix-community/home-manager/issues/3734:
-    sudo mkdir -m 0755 -p /nix/var/nix/{profiles,gcroots}/per-user/$USER
-    sudo chown -R $USER:nixbld /nix/var/nix/profiles/per-user/$USER
-    experimentalfeatures="experimental-features = nix-command flakes"
-    sudo bash -c "echo $experimentalfeatures >>/etc/nix/nix.conf"
+    sudo mkdir -m 0755 -p /nix/var/nix/{profiles,gcroots}/per-user/"$USER"
+    sudo chown -R "$USER:nixbld" "/nix/var/nix/profiles/per-user/$USER"
+    # Enable flakes
+    extra_nix_conf="experimental-features = nix-command flakes"
+    sudo sh -c "printf '$extra_nix_conf\n'>>/etc/nix/nix.conf"
+    # https://github.com/NixOS/nix/issues/1078#issuecomment-1019327751
+    for f in /nix/var/nix/profiles/default/bin/nix*; do
+        sudo ln -fs "$f" "/usr/bin/$(basename "$f")"
+    done
+}
+
+restart_nix_daemon () {
     # Re-start nix-daemon
     if systemctl list-units | grep -iq "nix-daemon"; then
         sudo systemctl restart nix-daemon
@@ -48,21 +53,23 @@ uninstall_nix () {
         sudo groupdel nixbld
     fi
     rm -rf "$HOME/"{.nix-channels,.nix-defexpr,.nix-profile,.config/nixpkgs,.config/nix,.config/home-manager,.local/state/nix,.local/state/home-manager}
-    rm -rf /etc/profile.d/nix.sh
+    sudo rm -rf /etc/profile.d/nix.sh
     if [ -d "/nix" ]; then
         sudo rm -rf /nix
     fi
     if [ -d "/etc/nix" ]; then
-        sudo mv -f /etc/nix /etc/nix.bak
+        sudo rm -fr /etc/nix 
     fi
-    sudo find /etc -iname "*backup-before-nix*" | sudo xargs rm -f
-    sed -i "/\/nix/d" "$HOME/.profile"
-    sed -i "/\/nix/d" "$HOME/.bash_profile"
+    sudo find /etc -iname "*backup-before-nix*" -delete 
+    sudo find -L /usr/bin -iname "nix*" -delete
+    [ -f "$HOME/.profile" ] && sed -i "/\/nix/d" "$HOME/.profile"
+    [ -f "$HOME/.bash_profile" ] && sed -i "/\/nix/d" "$HOME/.bash_profile"
+    [ -f "$HOME/.bashrc" ] && sed -i "/\/nix/d" "$HOME/.bashrc"
     if systemctl list-units | grep -iq "nix-daemon"; then
         sudo systemctl stop nix-daemon nix-daemon.socket
         sudo systemctl disable nix-daemon nix-daemon.socket
-        sudo find /etc/systemd -iname "*nix-daemon*" | sudo xargs rm
-        sudo find /usr/lib/systemd -iname "*nix-daemon*" | sudo xargs rm
+        sudo find /etc/systemd -iname "*nix-daemon*" -delete
+        sudo find /usr/lib/systemd -iname "*nix-daemon*" -delete
         sudo systemctl daemon-reload
         sudo systemctl reset-failed
     fi
@@ -97,9 +104,9 @@ main () {
     exit_unless_command_exists "apt-get"
     exit_unless_command_exists "systemctl"
     apt_update
-    exit_unless_command_exists "curl"
     uninstall_nix
     install_nix "multi"
+    restart_nix_daemon
     exit_unless_command_exists "nix-shell"
     outro
 }
