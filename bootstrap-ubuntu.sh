@@ -13,10 +13,10 @@ install_nix () {
     type="$1"
     if [ "$type" = "single" ]; then
         # Single-user
-        sh <(curl -L https://nixos.org/nix/install) --yes --no-daemon
+        sh <(curl -L https://releases.nixos.org/nix/nix-2.16.1/install) --yes --no-daemon
     elif [ "$type" = "multi" ]; then
         # Multi-user
-        sh <(curl -L https://nixos.org/nix/install) --yes --daemon
+        sh <(curl -L https://releases.nixos.org/nix/nix-2.16.1/install) --yes --daemon
     else
         echo "Error: unknown installation type: '$type'"
         exit 1
@@ -58,7 +58,12 @@ uninstall_nix () {
         sudo rm -rf /nix
     fi
     if [ -d "/etc/nix" ]; then
-        sudo rm -fr /etc/nix 
+        sudo rm -fr /etc/nix.bak
+        sudo mv /etc/nix /etc/nix.bak
+    fi
+    if [ -d "$HOME/.cache/nix" ]; then
+        sudo rm -fr "$HOME/.cache/nix.bak"
+        sudo mv  "$HOME/.cache/nix" "$HOME/.cache/nix.bak"
     fi
     sudo find /etc -iname "*backup-before-nix*" -delete 
     sudo find -L /usr/bin -iname "nix*" -delete
