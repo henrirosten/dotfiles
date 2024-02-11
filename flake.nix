@@ -1,51 +1,73 @@
 {
   inputs = {
-    
-    # Nixpkgs
-    # unstable:
-    # nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    # release:
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    # nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
 
-    # Home manager
-    home-manager = {
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
-      # HM version must match the nixpkgs.url version above (release, unstable)
-      # unstable:
-      # url = "github:nix-community/home-manager";
-      # release:
-      url = "github:nix-community/home-manager/release-23.05";
+    };
+
+    nixos-hardware.url = "github:nixos/nixos-hardware";
+
+    home-manager = {
+      # url = "github:nix-community/home-manager/release-23.11";
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nixvim = {
+      url = "github:nix-community/nixvim";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nix-index-database = {
+      url = "github:Mic92/nix-index-database";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... } @ inputs: 
-
-  let
+  outputs = inputs @ {
+    self,
+    nixpkgs,
+    treefmt-nix,
+    ...
+  }: let
     inherit (self) outputs;
-    users = {
-      me = {
-        # TODO: replace with your info
+    specialArgs = {
+      inherit inputs outputs;
+      user = {
         name = "Henri Rosten";
         username = "hrosten";
-        homeDirectory = "/home/hrosten";
+        homedir = "/home/hrosten";
         email = "henri.rosten@unikie.com";
-      };
-    };
-  in {
-    # Standalone home-manager configuration entrypoint
-    # Available through 'home-manager switch --flake .#hrosten'
-    homeConfigurations = {
-      # Home configuration for users.me
-      "${users.me.username}" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        extraSpecialArgs = {
-          inherit inputs outputs;
-          user = users.me;
-        };
-        modules = [
-          ./home-manager/home.nix
+        keys = [
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHFuB+uEjhoSdakwiKLD3TbNpbjnlXerEfZQbtRgvdSz"
         ];
       };
     };
+  in {
+    nixosModules = import ./modules;
+    homeManagerModules = import ./home-modules;
+
+    nixosConfigurations = {
+      x1 = inputs.nixpkgs.lib.nixosSystem {
+        inherit specialArgs;
+        modules = [./hosts/x1/configuration.nix];
+      };
+    };
+
+    formatter.x86_64-linux =
+      treefmt-nix.lib.mkWrapper
+      nixpkgs.legacyPackages.x86_64-linux
+      {
+        projectRootFile = "flake.nix";
+        programs = {
+          alejandra.enable = true; # nix formatter https://github.com/kamadorueda/alejandra
+          deadnix.enable = true; # removes dead nix code https://github.com/astro/deadnix
+          statix.enable = true; # prevents use of nix anti-patterns https://github.com/nerdypepper/statix
+          shellcheck.enable = true; # lints shell scripts https://github.com/koalaman/shellcheck
+        };
+      };
   };
 }
