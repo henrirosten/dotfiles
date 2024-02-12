@@ -8,7 +8,7 @@
 }: {
   imports = lib.flatten [
     (with outputs.nixosModules; [
-      (common {inherit user pkgs outputs;})
+      (common-nix {inherit user pkgs outputs;})
       laptop
       gui
       ssh-access
