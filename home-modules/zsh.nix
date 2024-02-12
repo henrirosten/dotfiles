@@ -1,16 +1,4 @@
 {pkgs, ...}: {
-  # show what package provides a commands when it's not found
-  programs = {
-    nix-index = {
-      enable = true;
-      enableZshIntegration = true;
-    };
-
-    # run commands without installing them
-    # , <cmd>
-    nix-index-database.comma.enable = true;
-  };
-
   programs.zsh = {
     enable = true;
 
@@ -27,8 +15,7 @@
     };
 
     sessionVariables = {
-      TERMINAL = "wezterm";
-      EDITOR = "nvim";
+      EDITOR = "vim";
       LS_COLORS = "$(${pkgs.vivid}/bin/vivid generate dracula)";
     };
 

@@ -37,7 +37,18 @@
     stateVersion = "23.11";
   };
   systemd.user.startServices = "sd-switch";
-  programs.home-manager.enable = true;
+  programs = {
+    home-manager.enable = true;
+    # show what package provides a commands when it's not found
+    nix-index = {
+      enable = true;
+      enableZshIntegration = true;
+      enableBashIntegration = true;
+    };
+    # run commands without installing them
+    # , <cmd>
+    nix-index-database.comma.enable = true;
+  };
   dconf.settings = {
     "org/gnome/desktop/interface" = {
       color-scheme = "prefer-dark";
