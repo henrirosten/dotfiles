@@ -1,6 +1,7 @@
 {
   bash = import ./bash.nix;
   codium = import ./codium.nix;
+  common-home = import ./common-home.nix;
   git = import ./git.nix;
   ssh-conf = import ./ssh-conf.nix;
   starship = import ./starship.nix;
