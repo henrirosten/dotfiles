@@ -2,7 +2,9 @@
   pkgs,
   user,
   ...
-}: {
+}: let
+  asGB = size: toString (size * 1024 * 1024 * 1024);
+in {
   system.stateVersion = "23.11";
   time.timeZone = "Europe/Helsinki";
   i18n.defaultLocale = "en_US.UTF-8";
@@ -21,7 +23,28 @@
         "cache.vedenemo.dev:8NhplARANhClUSWJyLVk4WMyy1Wb4rhmWW2u8AejH9E="
       ];
       experimental-features = ["nix-command" "flakes"];
+      trusted-users = [user.username];
+      # Ref:
+      # https://nixos.wiki/wiki/Storage_optimization#Automation
+      # https://nixos.org/manual/nix/stable/command-ref/conf-file.html#conf-min-free
+      #
+      # When free disk space in /nix/store drops below min-free during build,
+      # perform a garbage-collection until max-free bytes are available or there
+      # is no more garbage.
+      min-free = asGB 50;
+      max-free = asGB 200;
+      # check the free disk space every 5 seconds
+      min-free-check-interval = 5;
     };
+    # Garbage collection
+    gc.automatic = true;
+    gc.options = pkgs.lib.mkDefault "--delete-older-than 7d";
+  };
+
+  # Sometimes it fails if a store path is still in use.
+  # This should fix intermediate issues.
+  systemd.services.nix-gc.serviceConfig = {
+    Restart = "on-failure";
   };
 
   systemd.services.NetworkManager-wait-online.enable = false;
@@ -43,6 +66,7 @@
     pathsToLink = ["/share/zsh"];
     shells = [pkgs.zsh];
   };
+  programs.bash.enableCompletion = true;
   users = {
     defaultUserShell = pkgs.bash;
     users."${user.username}" = {
@@ -58,6 +82,7 @@
   networking = {
     networkmanager.enable = true;
     firewall.enable = true;
+    enableIPv6 = false;
   };
 
   # List packages installed in system profile
@@ -65,7 +90,6 @@
     curl
     git
     htop
-    nix-info
     vim
     wget
   ];

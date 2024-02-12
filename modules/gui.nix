@@ -2,8 +2,8 @@ _: {
   services.xserver = {
     enable = true;
     xkb.layout = "fi";
-    autoRepeatDelay = 150;
-    autoRepeatInterval = 30;
+    autoRepeatDelay = 180;
+    autoRepeatInterval = 20;
 
     # gnome
     displayManager.gdm.enable = true;
