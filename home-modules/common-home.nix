@@ -1,4 +1,10 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  inputs,
+  lib,
+  user,
+  ...
+}: {
   home = {
     homeDirectory = user.homedir;
     packages = with pkgs; [

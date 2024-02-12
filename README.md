@@ -8,19 +8,17 @@ $ git clone https://github.com/henrirosten/dotfiles.git
 $ cd dotfiles
 ```
 
-### NixOS
-
 Bootstrap nix shell with `flakes` and `nix-command`:
 ```
 $ nix-shell
 ```
 
-Build `hostname` configuration:
+Build configuration for host `hostname`:
 ```bash
 $ nixos-rebuild build --flake .#hostname
 ```
 
-Install `hostname` configuration:
+Install configuration for host `hostname`:
 ```bash
 $ sudo nixos-rebuild switch --flake .#hostname
 ```

@@ -47,7 +47,7 @@
       };
     };
   in {
-    nixosModules = import ./modules;
+    nixosModules = import ./nix-modules;
     homeManagerModules = import ./home-modules;
 
     nixosConfigurations = {

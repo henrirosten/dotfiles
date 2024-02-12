@@ -14,12 +14,12 @@
       (with outputs.homeManagerModules; [
         bash
         codium
+        (common-home {inherit pkgs inputs lib user;})
         (git {inherit pkgs user;})
         ssh-conf
         starship
         vim
         zsh
-        common-home
       ])
       inputs.nixvim.homeManagerModules.nixvim
       inputs.nix-index-database.hmModules.nix-index
