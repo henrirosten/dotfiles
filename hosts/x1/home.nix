@@ -21,7 +21,6 @@
         vim
         zsh
       ])
-      inputs.nixvim.homeManagerModules.nixvim
       inputs.nix-index-database.hmModules.nix-index
     ];
   };
