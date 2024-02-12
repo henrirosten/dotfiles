@@ -4,12 +4,9 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
-  tests:
+  check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -22,5 +19,24 @@ jobs:
         run: nix flake show
       - name: Run nix flake check
         run: nix flake check -v
-      - name: Build x1
-        run: nix-shell --run 'nixos-rebuild build --flake .#x1'
+  build_matrix:
+    name: "build"
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      matrix:
+        target: [x1, t480]
+    concurrency:
+      # Cancel any in-progress workflow runs from the same PR or branch,
+      # allowing matrix jobs to run concurrently:
+      group: ${{ github.workflow }}.${{ github.event.pull_request.number || github.ref }}.${{ matrix.target }}
+      cancel-in-progress: true
+    steps:
+      - name: Print runner system info
+        run: sudo apt-get install -y inxi; sudo inxi -c0 --width -1 --basic --memory-short
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install nix
+        uses: cachix/install-nix-action@v25
+      - name: Build target '${{ matrix.target }}'
+        run: nix-shell --run 'nixos-rebuild build --flake .#${{ matrix.target }}'
