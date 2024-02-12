@@ -69,6 +69,7 @@ _: {
 
       own-nix-clean () {
           nix-collect-garbage
+          nix-collect-garbage -d
           # notify if it seems some symlinks prevent full cleanup
           if own-nix-store-symlinks > /dev/null 2>&1; then
               echo ""
