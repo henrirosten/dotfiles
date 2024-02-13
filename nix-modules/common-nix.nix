@@ -23,8 +23,8 @@ in {
       # When free disk space in /nix/store drops below min-free during build,
       # perform a garbage-collection until max-free bytes are available or there
       # is no more garbage.
-      min-free = asGB 50;
-      max-free = asGB 200;
+      min-free = asGB 20;
+      max-free = asGB 100;
       # check the free disk space every 5 seconds
       min-free-check-interval = 5;
     };
