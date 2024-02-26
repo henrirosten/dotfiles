@@ -11,7 +11,7 @@
       bat
       # burpsuite
       chromium
-      csvkit
+      # csvkit
       curl
       firefox
       flameshot
