@@ -18,6 +18,7 @@
       mergetool."meld".cmd = "meld $LOCAL $MERGED $REMOTE --output $MERGED";
       difftool."meld".cmd = "meld $LOCAL $REMOTE";
       init.defaultBranch = "main";
+      credential.helper = "cache --timeout=3600";
     };
   };
 }
