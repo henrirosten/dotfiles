@@ -22,6 +22,9 @@
       monitoring = {
         hostname = "172.18.20.108";
       };
+      binarycache = {
+        hostname = "172.18.20.109";
+      };
       awsarm = {
         hostname = "13.51.226.233";
         port = 20220;
