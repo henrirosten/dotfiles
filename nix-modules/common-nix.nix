@@ -30,7 +30,7 @@ in {
     };
     # Garbage collection
     gc.automatic = true;
-    gc.options = pkgs.lib.mkDefault "--delete-older-than 7d";
+    gc.options = pkgs.lib.mkDefault "--delete-older-than 30d";
   };
 
   # Sometimes it fails if a store path is still in use.
