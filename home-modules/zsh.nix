@@ -3,7 +3,7 @@
     enable = true;
 
     dotDir = ".config/zsh";
-    enableAutosuggestions = true;
+    autosuggestion.enable = true;
     enableCompletion = true;
 
     syntaxHighlighting.enable = true;
