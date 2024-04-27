@@ -11,7 +11,7 @@
       bat
       # burpsuite
       chromium
-      # csvkit
+      csvkit
       curl
       firefox
       flameshot
@@ -27,6 +27,7 @@
       nix-info
       openfortivpn
       openvpn
+      sbomnix
       tree
       wget
     ];
