@@ -28,7 +28,7 @@ in {
       # check the free disk space every 5 seconds
       min-free-check-interval = 5;
     };
-    # Garbage collection, see: 
+    # Garbage collection, see:
     # https://search.nixos.org/options?type=packages&query=nix.gc
     # gc.automatic = true;
     # gc.options = pkgs.lib.mkDefault "--delete-older-than 30d";

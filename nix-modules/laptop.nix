@@ -3,14 +3,12 @@
     brightnessctl
   ];
 
-  services.xserver = {
+  services.libinput = {
     # touchpad
-    libinput = {
-      enable = true;
-      touchpad = {
-        tapping = true;
-        disableWhileTyping = true;
-      };
+    enable = true;
+    touchpad = {
+      tapping = true;
+      disableWhileTyping = true;
     };
   };
 
