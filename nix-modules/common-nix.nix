@@ -59,7 +59,7 @@ in {
     pathsToLink = ["/share/zsh"];
     shells = [pkgs.zsh];
   };
-  programs.bash.enableCompletion = true;
+  programs.bash.completion.enable = true;
   users = {
     defaultUserShell = pkgs.bash;
     users."${user.username}" = {
