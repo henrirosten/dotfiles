@@ -78,4 +78,7 @@
     substituters = https://cache.nixos.org/ https://ghaf-dev.cachix.org?priority=20 https://cache.vedenemo.dev
     trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= ghaf-dev.cachix.org-1:S3M8x3no8LFQPBfHw1jl6nmP8A7cVWKntoMKN3IsEQY= cache.vedenemo.dev:8NhplARANhClUSWJyLVk4WMyy1Wb4rhmWW2u8AejH9E=
   '';
+  # Ref: https://github.com/nix-community/home-manager/issues/5552
+  # Workaround for HM passing a nonexistent units dir to sd-switch
+  xdg.configFile."systemd/user/.hm-keep".text = "";
 }
