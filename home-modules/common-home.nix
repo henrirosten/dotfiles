@@ -16,8 +16,8 @@
       firefox
       flameshot
       gedit
-      gnome.gnome-terminal
-      gnome.gnome-tweaks
+      gnome-terminal
+      gnome-tweaks
       google-chrome
       htop
       jq
