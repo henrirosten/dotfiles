@@ -83,6 +83,7 @@ in {
     curl
     git
     htop
+    nixVersions.latest # use the latest version of 'nix'
     vim
     wget
   ];
