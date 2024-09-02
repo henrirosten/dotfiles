@@ -78,6 +78,8 @@ in {
     enableIPv6 = false;
   };
 
+  # virtualisation.waydroid.enable = true;
+
   # List packages installed in system profile
   environment.systemPackages = with pkgs; [
     curl
