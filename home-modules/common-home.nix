@@ -25,6 +25,7 @@
       libreoffice
       meld
       nix-info
+      openconnect
       openfortivpn
       openvpn
       sbomnix
