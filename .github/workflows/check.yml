@@ -12,11 +12,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install nix
-        uses: cachix/install-nix-action@v25
+        uses: cachix/install-nix-action@v30
       - name: Check .nix formatting
         run: nix fmt -- --fail-on-change
       - name: Check nix flake show runs successfully
-        run: nix flake show
+        run: nix flake show --all-systems
       - name: Run nix flake check
         run: nix flake check -v
   build_matrix:
@@ -32,11 +32,13 @@ jobs:
       group: ${{ github.workflow }}.${{ github.event.pull_request.number || github.ref }}.${{ matrix.target }}
       cancel-in-progress: true
     steps:
-      - name: Print runner system info
-        run: sudo apt-get install -y inxi; sudo inxi -c0 --width -1 --basic --memory-short
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install nix
-        uses: cachix/install-nix-action@v25
+        uses: cachix/install-nix-action@v30
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Print runner system info
+        run: nix-shell --quiet -p inxi --run 'inxi -c0 --width -1 --basic --memory-short'
       - name: Build target '${{ matrix.target }}'
-        run: nix-shell --run 'nixos-rebuild build --flake .#${{ matrix.target }}'
+        run: nix-shell --quiet --run 'nixos-rebuild build --flake .#${{ matrix.target }}'
