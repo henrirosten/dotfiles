@@ -13,6 +13,7 @@
       chromium
       csvkit
       curl
+      dig.dnsutils
       firefox
       flameshot
       gedit
@@ -31,6 +32,7 @@
       sbomnix
       tree
       wget
+      wireshark
     ];
     sessionVariables = {
       NIX_PATH = "nixpkgs=${inputs.nixpkgs}";
