@@ -14,6 +14,7 @@
       csvkit
       curl
       dig.dnsutils
+      file
       firefox
       flameshot
       gedit
