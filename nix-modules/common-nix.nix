@@ -78,8 +78,6 @@ in {
     enableIPv6 = false;
   };
 
-  # virtualisation.waydroid.enable = true;
-
   # List packages installed in system profile
   environment.systemPackages = with pkgs; [
     curl
@@ -89,4 +87,11 @@ in {
     vim
     wget
   ];
+
+  # Enable zramSwap: https://search.nixos.org/options?show=zramSwap.enable
+  zramSwap = {
+    enable = true;
+    algorithm = "zstd";
+    memoryPercent = 100;
+  };
 }
