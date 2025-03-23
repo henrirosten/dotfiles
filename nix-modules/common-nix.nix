@@ -52,6 +52,16 @@ in {
     };
     audit.enable = true;
     auditd.enable = true;
+
+    # Increase the maximum number of open files user limit, see ulimit -n
+    pam.loginLimits = [
+      {
+        domain = "*";
+        item = "nofile";
+        type = "-";
+        value = "8192";
+      }
+    ];
   };
 
   programs.zsh.enable = true;
