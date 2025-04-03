@@ -1,8 +1,8 @@
 {
   programs.ssh = {
     enable = true;
-    controlMaster = "auto";
-    controlPath = "~/.ssh/%C";
+    #controlMaster = "auto";
+    #controlPath = "~/.ssh/%C";
     matchBlocks = {
       ci-server = {
         hostname = "172.18.20.100";
