@@ -3,7 +3,7 @@
     enable = true;
     package = pkgs.vscodium;
     # https://github.com/nix-community/nix-vscode-extensions/blob/master/data/cache/open-vsx-latest.json
-    extensions = with pkgs.vscode-extensions; [
+    profiles.default.extensions = with pkgs.vscode-extensions; [
       vscodevim.vim
       bbenoist.nix
       ms-python.python
