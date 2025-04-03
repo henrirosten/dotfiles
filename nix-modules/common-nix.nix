@@ -63,6 +63,7 @@ in {
       }
     ];
   };
+  systemd.user.extraConfig = "DefaultLimitNOFILE=8192";
 
   programs.zsh.enable = true;
   environment = {
