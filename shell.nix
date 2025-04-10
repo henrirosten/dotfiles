@@ -18,6 +18,7 @@
       home-manager
       nix
       nixos-rebuild
+      shellcheck
     ];
   };
 }

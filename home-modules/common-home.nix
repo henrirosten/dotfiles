@@ -10,21 +10,17 @@
     packages = with pkgs; [
       bat
       # burpsuite
-      chromium
       csvkit
       curl
       dig.dnsutils
       file
-      firefox
       flameshot
       gedit
       gnome-terminal
       gnome-tweaks
-      google-chrome
       htop
       jq
       keepass
-      libreoffice
       meld
       nix-info
       openconnect
@@ -33,7 +29,6 @@
       sbomnix
       tree
       wget
-      wireshark
     ];
     sessionVariables = {
       NIX_PATH = "nixpkgs=${inputs.nixpkgs}";
