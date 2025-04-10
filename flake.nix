@@ -51,7 +51,7 @@
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
         extraSpecialArgs = {
           inherit inputs outputs;
-          user = specialArgs.user;
+          inherit (specialArgs) user;
         };
         modules = [
           outputs.homeManagerModules.bash
