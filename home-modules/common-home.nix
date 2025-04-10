@@ -4,6 +4,7 @@
   user,
   ...
 }: {
+  fonts.fontconfig.enable = true;
   home = {
     homeDirectory = user.homedir;
     packages = with pkgs; [
@@ -28,6 +29,8 @@
       sbomnix
       tree
       wget
+      nerd-fonts.fira-code
+      nerd-fonts.droid-sans-mono
     ];
     sessionVariables = {
       NIX_PATH = "nixpkgs=${inputs.nixpkgs}";
