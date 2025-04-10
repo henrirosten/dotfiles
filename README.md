@@ -4,26 +4,37 @@
 
 Clone this repository:
 ```bash
-$ git clone https://github.com/henrirosten/dotfiles.git
-$ cd dotfiles
+❯ git clone https://github.com/henrirosten/dotfiles.git
+❯ cd dotfiles
 ```
+
+## NixOS
 
 Bootstrap nix shell with `flakes` and `nix-command`:
-```
-$ nix-shell
-```
-
-Build configuration for host `hostname`:
 ```bash
-$ nixos-rebuild build --flake .#hostname
+❯ nix-shell
 ```
 
-Install configuration for host `hostname`:
+Build the configuration for host `hostname`:
 ```bash
-$ sudo nixos-rebuild switch --flake .#hostname
+❯ nixos-rebuild build --flake .#hostname
 ```
 
-## Acknowledgements
+Install the configuration for host `hostname`:
+```bash
+❯ sudo nixos-rebuild switch --flake .#hostname
+```
 
-- https://github.com/joinemm/snowflake
-- https://github.com/Misterio77/nix-starter-configs
+## Ubuntu
+
+Install Nix package manager either following the instructions from https://nixos.org/download, or by running the bootstrap script from this repository:
+```bash
+❯ ./bootstrap-ubuntu.sh
+```
+
+Then, start a new shell and install your user configuration:
+
+```bash
+❯ nix-shell
+❯ home-manager switch --flake .#hrosten
+```

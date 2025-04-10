@@ -24,6 +24,7 @@
     self,
     nixpkgs,
     treefmt-nix,
+    home-manager,
     ...
   }: let
     inherit (self) outputs;
@@ -42,6 +43,32 @@
   in {
     nixosModules = import ./nix-modules;
     homeManagerModules = import ./home-modules;
+
+    # Standalone home-manager configuration entrypoint
+    # Available through 'home-manager switch --flake .#hrosten'
+    homeConfigurations = rec {
+      "hrosten" = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.x86_64-linux;
+        extraSpecialArgs = {
+          inherit inputs outputs;
+          user = specialArgs.user;
+        };
+        modules = [
+          outputs.homeManagerModules.bash
+          outputs.homeManagerModules.common-home
+          outputs.homeManagerModules.extras
+          outputs.homeManagerModules.git
+          outputs.homeManagerModules.ssh-conf
+          outputs.homeManagerModules.starship
+          outputs.homeManagerModules.vim
+          outputs.homeManagerModules.zsh
+          inputs.nix-index-database.hmModules.nix-index
+          {
+            home.username = specialArgs.user.username;
+          }
+        ];
+      };
+    };
 
     nixosConfigurations = {
       x1 = inputs.nixpkgs.lib.nixosSystem {

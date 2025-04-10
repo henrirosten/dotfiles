@@ -15,6 +15,7 @@
         bash
         codium
         (common-home {inherit pkgs inputs lib user;})
+        extras
         (git {inherit pkgs user;})
         ssh-conf
         starship
