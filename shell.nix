@@ -1,6 +1,6 @@
 {
   pkgs ?
-  # If pkgs is not defined, instanciate nixpkgs from locked commit
+  # If pkgs is not defined, instantiate nixpkgs from locked commit
   let
     lock = (builtins.fromJSON (builtins.readFile ./flake.lock)).nodes.nixpkgs.locked;
     nixpkgs = fetchTarball {

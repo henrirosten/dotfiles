@@ -7,7 +7,7 @@
       battery.disabled = true;
       git_metrics.disabled = false;
       directory.repo_root_style = "bold underline italic blue";
-      # Disable the follwing modules in $HOME folder, or
+      # Disable the following modules in $HOME folder, or
       # any folder that happens to have .config subfolder:
       python = {
         detect_folders = ["!.config"];

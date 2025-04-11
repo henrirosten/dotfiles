@@ -7,6 +7,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    git-hooks-nix = {
+      url = "github:cachix/git-hooks.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nixos-hardware.url = "github:nixos/nixos-hardware";
 
     home-manager = {
@@ -20,13 +25,7 @@
     };
   };
 
-  outputs = inputs @ {
-    self,
-    nixpkgs,
-    treefmt-nix,
-    home-manager,
-    ...
-  }: let
+  outputs = inputs @ {self, ...}: let
     inherit (self) outputs;
     specialArgs = {
       inherit inputs outputs;
@@ -47,8 +46,8 @@
     # Standalone home-manager configuration entrypoint
     # Available through 'home-manager switch --flake .#hrosten'
     homeConfigurations = rec {
-      "hrosten" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
+      "hrosten" = inputs.home-manager.lib.homeManagerConfiguration {
+        pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
         extraSpecialArgs = {
           inherit inputs outputs;
           inherit (specialArgs) user;
@@ -82,8 +81,8 @@
     };
 
     formatter.x86_64-linux =
-      treefmt-nix.lib.mkWrapper
-      nixpkgs.legacyPackages.x86_64-linux
+      inputs.treefmt-nix.lib.mkWrapper
+      inputs.nixpkgs.legacyPackages.x86_64-linux
       {
         projectRootFile = "flake.nix";
         programs = {
@@ -93,5 +92,28 @@
           shellcheck.enable = true; # lints shell scripts https://github.com/koalaman/shellcheck
         };
       };
+
+    checks.x86_64-linux = {
+      pre-commit-check = inputs.git-hooks-nix.lib.x86_64-linux.run {
+        src = self.outPath;
+        # default_stages = ["pre-commit" "pre-push"];
+        hooks = {
+          treefmt = {
+            package = outputs.formatter.x86_64-linux;
+            enable = true;
+          };
+          end-of-file-fixer.enable = true;
+          typos.enable = true;
+          gitlint.enable = true;
+        };
+      };
+    };
+
+    devShells.x86_64-linux = {
+      default = inputs.nixpkgs.legacyPackages.x86_64-linux.mkShell {
+        inherit (self.checks.x86_64-linux.pre-commit-check) shellHook;
+        buildInputs = self.checks.x86_64-linux.pre-commit-check.enabledPackages;
+      };
+    };
   };
 }
