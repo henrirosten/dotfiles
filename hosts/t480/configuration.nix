@@ -52,5 +52,6 @@
       "--cores 2"
     ];
     dates = "02:00";
+    persistent = true;
   };
 }

@@ -36,9 +36,20 @@
 
   services = {
     fwupd.enable = true;
+  };
 
-    # fingerprint scanner daemon
-    # to enroll a finger, use sudo fprintd-enroll $USER
-    # fprintd.enable = true;
+  # Auto-upgrade
+  system.autoUpgrade = {
+    enable = true;
+    allowReboot = false;
+    flake = "${inputs.self.outPath}#x1";
+    flags = [
+      "--update-input"
+      "nixpkgs"
+      "-L"
+      "--cores 2"
+    ];
+    dates = "weekly";
+    persistent = true;
   };
 }
