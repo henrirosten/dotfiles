@@ -11,6 +11,7 @@ in {
   boot.blacklistedKernelModules = ["pcspkr"];
   hardware.enableAllFirmware = true;
   nixpkgs.config.allowUnfree = true;
+  services.journald.extraConfig = "SystemMaxUse=1G";
 
   nix = {
     settings = {
@@ -30,8 +31,13 @@ in {
     };
     # Garbage collection, see:
     # https://search.nixos.org/options?type=packages&query=nix.gc
-    # gc.automatic = true;
-    # gc.options = pkgs.lib.mkDefault "--delete-older-than 30d";
+    gc = {
+      automatic = true;
+      dates = "weekly";
+      options = pkgs.lib.mkDefault "--delete-older-than 14d";
+      persistent = true;
+    };
+    optimise.automatic = true;
   };
 
   # Sometimes it fails if a store path is still in use.
