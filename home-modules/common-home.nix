@@ -31,6 +31,8 @@
       wget
       nerd-fonts.fira-code
       nerd-fonts.droid-sans-mono
+      cantarell-fonts
+      source-code-pro
     ];
     sessionVariables = {
       NIX_PATH = "nixpkgs=${inputs.nixpkgs}";

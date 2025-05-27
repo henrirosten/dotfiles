@@ -83,6 +83,10 @@ _: {
           echo "Consider manually removing logs from '/nix/var/log/nix/drvs/'"
           own-find-largest /nix/var/log/nix/drvs/ 10
       }
+
+      own-journal-clear () {
+        sudo journalctl --rotate; sudo journalctl --vacuum-time=1s
+      }
     '';
     shellAliases = {
       ls = "ls --color=auto";
