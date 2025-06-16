@@ -1,13 +1,13 @@
 _: {
-  services.xserver = {
-    enable = true;
-    xkb.layout = "fi";
-    autoRepeatDelay = 180;
-    autoRepeatInterval = 20;
-
-    # gnome
+  services = {
     displayManager.gdm.enable = true;
     desktopManager.gnome.enable = true;
+    xserver = {
+      enable = true;
+      xkb.layout = "fi";
+      autoRepeatDelay = 180;
+      autoRepeatInterval = 20;
+    };
   };
 
   # use X keyboard options in console
