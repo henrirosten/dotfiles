@@ -61,7 +61,7 @@
           outputs.homeManagerModules.starship
           outputs.homeManagerModules.vim
           outputs.homeManagerModules.zsh
-          inputs.nix-index-database.hmModules.nix-index
+          inputs.nix-index-database.homeModules.nix-index
           {
             home.username = specialArgs.user.username;
           }
