@@ -27,6 +27,7 @@
 
   outputs = inputs @ {self, ...}: let
     inherit (self) outputs;
+
     specialArgs = {
       inherit inputs outputs;
       user = {
@@ -55,7 +56,7 @@
         modules = [
           outputs.homeManagerModules.bash
           outputs.homeManagerModules.common-home
-          # outputs.homeManagerModules.extras
+          outputs.homeManagerModules.extras
           outputs.homeManagerModules.git
           outputs.homeManagerModules.ssh-conf
           outputs.homeManagerModules.starship
