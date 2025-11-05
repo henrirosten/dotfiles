@@ -5,10 +5,12 @@
 }: {
   programs.git = {
     enable = true;
-    package = pkgs.gitAndTools.gitFull;
-    userName = user.name;
-    userEmail = user.email;
-    extraConfig = {
+    package = pkgs.gitFull;
+    settings = {
+      user = {
+        inherit (user) name;
+        inherit (user) email;
+      };
       core = {
         whitespace = "trailing-space,space-before-tab";
         editor = "vim";
