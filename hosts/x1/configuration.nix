@@ -37,6 +37,7 @@
 
   services = {
     fwupd.enable = true;
+    avahi.enable = false;
   };
 
   # Auto-upgrade

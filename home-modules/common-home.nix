@@ -10,6 +10,7 @@
     packages = with pkgs; [
       bat
       # burpsuite
+      cantarell-fonts
       csvkit
       curl
       dig.dnsutils
@@ -22,6 +23,7 @@
       jq
       keepass
       meld
+      net-tools
       nix-info
       openconnect
       openfortivpn
@@ -31,7 +33,7 @@
       wget
       nerd-fonts.fira-code
       nerd-fonts.droid-sans-mono
-      cantarell-fonts
+      pstree
       source-code-pro
     ];
     sessionVariables = {
