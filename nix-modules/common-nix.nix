@@ -112,7 +112,7 @@ in {
   zramSwap = {
     enable = true;
     algorithm = "zstd";
-    memoryPercent = 100;
+    memoryPercent = 150;
   };
   # https://wiki.archlinux.org/title/Zram#Optimizing_swap_on_zram:
   boot.kernel.sysctl = {
