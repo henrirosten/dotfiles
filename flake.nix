@@ -99,8 +99,8 @@
             end-of-file-fixer.enable = true;
             # spell check
             typos.enable = true;
-            # nix formatter (rfc-style)
-            nixfmt-rfc-style.enable = true;
+            # nix formatter
+            nixfmt.enable = true;
             # removes dead nix code
             deadnix.enable = true;
             # prevents use of nix anti-patterns
