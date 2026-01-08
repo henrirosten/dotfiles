@@ -2,7 +2,8 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   nixpkgs.config.allowUnfree = true;
 
   home = {
@@ -36,7 +37,13 @@
       show-weekday = lib.hm.gvariant.mkBoolean true;
     };
     "org/gnome/shell" = {
-      favorite-apps = ["org.gnome.Nautilus.desktop" "org.gnome.Terminal.desktop" "google-chrome.desktop" "codium.desktop" "keepass.desktop"];
+      favorite-apps = [
+        "org.gnome.Nautilus.desktop"
+        "org.gnome.Terminal.desktop"
+        "google-chrome.desktop"
+        "codium.desktop"
+        "keepass.desktop"
+      ];
     };
   };
 }

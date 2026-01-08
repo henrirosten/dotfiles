@@ -3,7 +3,8 @@
   inputs,
   user,
   ...
-}: {
+}:
+{
   fonts.fontconfig.enable = true;
   home = {
     homeDirectory = user.homedir;

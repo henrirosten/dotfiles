@@ -1,7 +1,11 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   programs.vim = {
     enable = true;
-    plugins = with pkgs.vimPlugins; [vim-airline pathogen];
+    plugins = with pkgs.vimPlugins; [
+      vim-airline
+      pathogen
+    ];
     extraConfig = ''
       """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
       " General

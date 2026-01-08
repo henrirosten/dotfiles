@@ -10,10 +10,10 @@
       # Disable the following modules in $HOME folder, or
       # any folder that happens to have .config subfolder:
       python = {
-        detect_folders = ["!.config"];
+        detect_folders = [ "!.config" ];
       };
       nodejs = {
-        detect_folders = ["!.config"];
+        detect_folders = [ "!.config" ];
       };
       # Somehow starship thinks some CLI are google could, when
       # that's not the case, let's just disable gcloud module:

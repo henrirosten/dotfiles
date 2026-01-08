@@ -2,21 +2,26 @@
   pkgs,
   user,
   ...
-}: let
+}:
+let
   asGB = size: toString (size * 1024 * 1024 * 1024);
-in {
+in
+{
   system.stateVersion = "23.11";
   time.timeZone = "Europe/Helsinki";
   i18n.defaultLocale = "en_US.UTF-8";
-  boot.blacklistedKernelModules = ["pcspkr"];
+  boot.blacklistedKernelModules = [ "pcspkr" ];
   hardware.enableAllFirmware = true;
   nixpkgs.config.allowUnfree = true;
   services.journald.extraConfig = "SystemMaxUse=1G";
 
   nix = {
     settings = {
-      experimental-features = ["nix-command" "flakes"];
-      trusted-users = [user.username];
+      experimental-features = [
+        "nix-command"
+        "flakes"
+      ];
+      trusted-users = [ user.username ];
       # Ref:
       # https://nixos.wiki/wiki/Storage_optimization#Automation
       # https://nixos.org/manual/nix/stable/command-ref/conf-file.html#conf-min-free
@@ -49,7 +54,7 @@ in {
   # https://github.com/NixOS/nixpkgs/issues/180175
   systemd.services.NetworkManager-wait-online.enable = false;
   # https://github.com/NixOS/nixpkgs/issues/296450
-  systemd.services.NetworkManager-ensure-profiles.after = ["NetworkManager.service"];
+  systemd.services.NetworkManager-ensure-profiles.after = [ "NetworkManager.service" ];
 
   security = {
     sudo = {
@@ -76,15 +81,18 @@ in {
 
   programs.zsh.enable = true;
   environment = {
-    pathsToLink = ["/share/zsh"];
-    shells = [pkgs.zsh];
+    pathsToLink = [ "/share/zsh" ];
+    shells = [ pkgs.zsh ];
   };
   programs.bash.completion.enable = true;
   users = {
     defaultUserShell = pkgs.bash;
     users."${user.username}" = {
       isNormalUser = true;
-      extraGroups = ["wheel" "networkmanager"];
+      extraGroups = [
+        "wheel"
+        "networkmanager"
+      ];
       initialPassword = "changemeonfirstlogin";
       home = "/home/${user.username}";
       shell = pkgs.bash;

@@ -5,10 +5,11 @@
   lib,
   pkgs,
   ...
-}: {
+}:
+{
   imports = lib.flatten [
     (with outputs.nixosModules; [
-      (common-nix {inherit pkgs user;})
+      (common-nix { inherit pkgs user; })
       laptop
       gui
       ssh-access
@@ -16,13 +17,21 @@
     (with inputs.nixos-hardware.nixosModules; [
       lenovo-thinkpad-t480
     ])
-    (import ./home.nix {inherit inputs outputs user pkgs lib;})
+    (import ./home.nix {
+      inherit
+        inputs
+        outputs
+        user
+        pkgs
+        lib
+        ;
+    })
     ./hardware-configuration.nix
   ];
 
   boot = {
     # force S3 sleep mode
-    kernelParams = ["mem_sleep_default=deep"];
+    kernelParams = [ "mem_sleep_default=deep" ];
 
     loader = {
       systemd-boot.enable = true;

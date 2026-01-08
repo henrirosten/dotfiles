@@ -3,7 +3,10 @@ _: {
     enable = true;
     historyFileSize = 1000000;
     historySize = 1000000;
-    shellOptions = ["histappend" "checkwinsize"];
+    shellOptions = [
+      "histappend"
+      "checkwinsize"
+    ];
     bashrcExtra = ''
       export EDITOR=vim
       export HISTCONTROL=ignoreboth
