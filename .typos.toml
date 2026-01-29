@@ -1,4 +1,5 @@
 [default]
 extend-ignore-re = [
+  ".*substituters = ",
   ".*<leader>ba "
 ]
