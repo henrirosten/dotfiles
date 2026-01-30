@@ -1,15 +1,14 @@
 {
   inputs,
   outputs,
-  user,
   lib,
-  pkgs,
   ...
 }:
 {
   imports = lib.flatten [
     (with outputs.nixosModules; [
-      (common-nix { inherit pkgs user; })
+      common-nix
+      (host-common { inherit inputs; })
       laptop
       gui
       ssh-access
@@ -22,45 +21,16 @@
       inherit
         inputs
         outputs
-        user
-        pkgs
-        lib
         ;
     })
     ./hardware-configuration.nix
   ];
 
-  boot = {
-    # force S3 sleep mode
-    kernelParams = [ "mem_sleep_default=deep" ];
+  networking.hostName = "x1";
 
-    loader = {
-      systemd-boot.enable = true;
-      systemd-boot.configurationLimit = 5;
-      efi.canTouchEfiVariables = true;
-    };
-  };
+  boot.kernelParams = [ "mem_sleep_default=deep" ]; # force S3 sleep mode
 
-  # disable ssh askpass
-  programs.ssh.askPassword = "";
+  services.avahi.enable = false;
 
-  services = {
-    fwupd.enable = true;
-    avahi.enable = false;
-  };
-
-  # Auto-upgrade
-  system.autoUpgrade = {
-    enable = true;
-    allowReboot = false;
-    flake = "${inputs.self.outPath}#x1";
-    flags = [
-      "--update-input"
-      "nixpkgs"
-      "-L"
-      "--cores 2"
-    ];
-    dates = "weekly";
-    persistent = true;
-  };
+  system.autoUpgrade.dates = "weekly";
 }

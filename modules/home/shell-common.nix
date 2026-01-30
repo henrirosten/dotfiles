@@ -1,29 +1,20 @@
+# Shared shell configuration for bash and zsh
 _: {
-  programs.bash = {
-    enable = true;
-    historyFileSize = 1000000;
-    historySize = 1000000;
-    shellOptions = [
-      "histappend"
-      "checkwinsize"
-    ];
-    bashrcExtra = ''
-      export EDITOR=vim
-      export HISTCONTROL=ignoreboth
-      export HISTFILE="$HOME"/.bash_eternal_history
-      PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
-      #PROMPT_COLOR="1;90m"
-      PROMPT_COLOR="1;32m"
-      export PS1="\n\[\033[$PROMPT_COLOR\][\[\e]0;\u@\h: \w\a\]\u@\h:\w]\\$\[\033[0m\] "
-      export XDG_DATA_DIRS=$HOME/.nix-profile/share:$XDG_DATA_DIRS
-      # Disable ctrl-s (pause terminal output)
-      stty -ixon
+  home.shellAliases = {
+    ls = "ls --color=auto";
+    grep = "grep --color=auto";
+  };
 
-      own-minhist () {
-          cp ~/.bash_eternal_history ~/.bash_eternal_history.old
-          history -w /dev/stdout | nl | sort -k2 -k 1,1nr | uniq -f1 | sort -n | cut -f2 > ~/.bash_eternal_history
-          echo "Wrote ~/.bash_eternal_history. Old history in ~/.bash_eternal_history.old"
-      }
+  home.sessionVariables = {
+    XDG_DATA_DIRS = "$HOME/.nix-profile/share:\${XDG_DATA_DIRS:-/usr/local/share:/usr/share}";
+  };
+
+  # Shared shell functions sourced by both bash and zsh
+  home.file.".local/share/shell-functions.sh" = {
+    executable = false;
+    text = ''
+      # Disable ctrl-s (pause terminal output)
+      stty -ixon 2>/dev/null
 
       own-allfiles () {
           sudo find / -type f ! -path "/dev/*" ! -path "/sys/*" ! -path "/proc/*" ! -path "/run/*" > ~/allfiles.txt
@@ -56,7 +47,7 @@ _: {
       own-nix-store-symlinks () {
           # Find all symlinks in HOME that point somewhere in /nix/store.
           # grep -v removes (home-manager managed) dotfiles from the output results.
-          own-find-links "$HOME" | grep "/nix/store" | grep -vP "$HOME\/\."
+          own-find-links "$HOME" | grep "/nix/store" | grep -v "$HOME/\."
       }
 
       own-nix-info () {
@@ -88,15 +79,8 @@ _: {
       }
 
       own-journal-clear () {
-        sudo journalctl --rotate; sudo journalctl --vacuum-time=1s
+          sudo journalctl --rotate; sudo journalctl --vacuum-time=1s
       }
-    '';
-    shellAliases = {
-      ls = "ls --color=auto";
-      grep = "grep --color=auto";
-    };
-    initExtra = ''
-      if [ -z ''${LANG+x} ]; then LANG=en_US.utf8; fi
     '';
   };
 }

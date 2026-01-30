@@ -21,10 +21,8 @@
     "org/gnome/desktop/interface" = {
       color-scheme = "prefer-dark";
     };
-    "org/gnome/desktop/peripherals/keyboard" = {
-      delay = lib.hm.gvariant.mkUint32 180;
-      repeat-interval = lib.hm.gvariant.mkUint32 20;
-    };
+    # Keyboard repeat settings are configured system-wide in nix-modules/gui.nix
+    # via services.xserver.autoRepeatDelay and autoRepeatInterval
     "org/gnome/desktop/sound" = {
       event-sounds = lib.hm.gvariant.mkBoolean false;
     };

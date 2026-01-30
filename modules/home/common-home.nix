@@ -1,9 +1,11 @@
 {
   pkgs,
   inputs,
-  user,
   ...
 }:
+let
+  user = import ../../users/hrosten.nix;
+in
 {
   fonts.fontconfig.enable = true;
   home = {
@@ -39,7 +41,11 @@
     ];
     sessionVariables = {
       NIX_PATH = "nixpkgs=${inputs.nixpkgs}";
+      # Centralized EDITOR setting for all shells
+      EDITOR = "vim";
     };
+    # home.stateVersion for home-manager configuration
+    # (separate from system.stateVersion in nix-modules/common-nix.nix which is for home-manager)
     # https://nixos.wiki/wiki/FAQ/When_do_I_update_stateVersion
     stateVersion = "23.11";
   };

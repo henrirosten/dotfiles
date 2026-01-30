@@ -1,32 +1,30 @@
 {
   inputs,
   outputs,
-  user,
-  pkgs,
   ...
 }:
+let
+  user = import ../../users/hrosten.nix;
+in
 {
   imports = [
     inputs.home-manager.nixosModules.home-manager
   ];
 
+  home-manager.extraSpecialArgs = {
+    inherit inputs outputs;
+  };
+
   home-manager.users."${user.username}" =
     { lib, ... }:
     {
-      imports = pkgs.lib.flatten [
-        (with outputs.homeManagerModules; [
+      imports = lib.flatten [
+        (with outputs.homeModules; [
           bash
           vscode
-          (common-home {
-            inherit
-              pkgs
-              inputs
-              lib
-              user
-              ;
-          })
+          common-home
           extras
-          (git { inherit pkgs user; })
+          git
           ssh-conf
           starship
           vim

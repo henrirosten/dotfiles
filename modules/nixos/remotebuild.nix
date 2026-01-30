@@ -1,4 +1,7 @@
-{ user, ... }:
+_:
+let
+  user = import ../../users/hrosten.nix;
+in
 {
   nix = {
     distributedBuilds = true;

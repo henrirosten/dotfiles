@@ -4,6 +4,8 @@
   ...
 }:
 {
+  imports = [ ./shell-common.nix ];
+
   programs.zsh = {
     enable = true;
 
@@ -14,13 +16,7 @@
     syntaxHighlighting.enable = true;
     historySubstringSearch.enable = true;
 
-    shellAliases = {
-      ls = "ls --color=auto";
-      grep = "grep --color=auto";
-    };
-
     sessionVariables = {
-      EDITOR = "vim";
       LS_COLORS = "$(${pkgs.vivid}/bin/vivid generate dracula)";
     };
 
@@ -33,5 +29,10 @@
     };
 
     defaultKeymap = "emacs";
+
+    initContent = ''
+      # Source shared shell functions
+      [ -f "$HOME/.local/share/shell-functions.sh" ] && source "$HOME/.local/share/shell-functions.sh"
+    '';
   };
 }

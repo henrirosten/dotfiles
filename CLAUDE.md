@@ -18,6 +18,11 @@ nix-shell
 nix fmt
 ```
 
+**Run flake checks** (pre-commit hooks):
+```bash
+nix flake check
+```
+
 **Build NixOS configuration** (replace `hostname` with x1 or t480):
 ```bash
 nixos-rebuild build --flake .#hostname
@@ -37,10 +42,11 @@ home-manager switch --flake .#hrosten
 
 - `flake.nix` - Main entry point defining inputs, outputs, NixOS configurations, and home-manager configurations
 - `hosts/` - Per-machine configurations (x1, t480), each with `configuration.nix`, `hardware-configuration.nix`, and `home.nix`
-- `nix-modules/` - Reusable NixOS modules (common-nix, gui, laptop, ssh-access, remotebuild)
-- `home-modules/` - Reusable home-manager modules (bash, zsh, git, vim, starship, ssh-conf, extras, codium, vscode)
+- `users/` - User-specific data (name, username, email, ssh keys)
+- `modules/nixos/` - Reusable NixOS modules (common-nix, gui, laptop, ssh-access, remotebuild, host-common)
+- `modules/home/` - Reusable home-manager modules (bash, zsh, git, vim, starship, ssh-conf, extras, vscode, shell-common)
 
-Modules are exported via `outputs.nixosModules` and `outputs.homeManagerModules`, then imported in host configurations.
+Modules are exported via `outputs.nixosModules` and `outputs.homeModules`, then imported in host configurations.
 
 ## Linting/Formatting
 

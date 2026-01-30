@@ -27,44 +27,19 @@
 
       specialArgs = {
         inherit inputs outputs;
-        user = {
-          name = "Henri Rosten";
-          username = "hrosten";
-          homedir = "/home/hrosten";
-          email = "henri.rosten@unikie.com";
-          keys = [
-            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHFuB+uEjhoSdakwiKLD3TbNpbjnlXerEfZQbtRgvdSz"
-          ];
-        };
       };
     in
     {
-      nixosModules = import ./nix-modules;
-      homeManagerModules = import ./home-modules;
+      nixosModules = import ./modules/nixos;
+      homeModules = import ./modules/home;
 
       # Standalone home-manager configuration entrypoint
       # Available through 'home-manager switch --flake .#hrosten'
-      homeConfigurations = rec {
+      homeConfigurations = {
         "hrosten" = inputs.home-manager.lib.homeManagerConfiguration {
           pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
-          extraSpecialArgs = {
-            inherit inputs outputs;
-            inherit (specialArgs) user;
-          };
-          modules = [
-            outputs.homeManagerModules.bash
-            outputs.homeManagerModules.common-home
-            outputs.homeManagerModules.extras
-            outputs.homeManagerModules.git
-            outputs.homeManagerModules.ssh-conf
-            outputs.homeManagerModules.starship
-            outputs.homeManagerModules.vim
-            outputs.homeManagerModules.zsh
-            inputs.nix-index-database.homeModules.nix-index
-            {
-              home.username = specialArgs.user.username;
-            }
-          ];
+          extraSpecialArgs = specialArgs;
+          modules = [ outputs.homeModules.hm-hrosten ];
         };
       };
 

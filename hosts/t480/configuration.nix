@@ -1,15 +1,14 @@
 {
   inputs,
   outputs,
-  user,
   lib,
-  pkgs,
   ...
 }:
 {
   imports = lib.flatten [
     (with outputs.nixosModules; [
-      (common-nix { inherit pkgs user; })
+      common-nix
+      (host-common { inherit inputs; })
       laptop
       gui
       ssh-access
@@ -21,46 +20,20 @@
       inherit
         inputs
         outputs
-        user
-        pkgs
-        lib
         ;
     })
     ./hardware-configuration.nix
   ];
 
-  boot = {
-    # force S3 sleep mode
-    kernelParams = [ "mem_sleep_default=deep" ];
+  networking.hostName = "t480";
 
-    loader = {
-      systemd-boot.enable = true;
-      systemd-boot.configurationLimit = 5;
-      efi.canTouchEfiVariables = true;
-    };
-  };
-
-  # disable ssh askpass
-  programs.ssh.askPassword = "";
+  boot.kernelParams = [ "mem_sleep_default=deep" ]; # force S3 sleep mode
 
   services = {
-    fwupd.enable = true;
-
     # fingerprint scanner daemon
     # to enroll a finger, use sudo fprintd-enroll $USER
     # fprintd.enable = true;
   };
-  system.autoUpgrade = {
-    enable = true;
-    allowReboot = false;
-    flake = "${inputs.self.outPath}#t480";
-    flags = [
-      "--update-input"
-      "nixpkgs"
-      "-L"
-      "--cores 2"
-    ];
-    dates = "02:00";
-    persistent = true;
-  };
+
+  system.autoUpgrade.dates = "02:00";
 }
