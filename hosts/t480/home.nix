@@ -16,7 +16,7 @@
       imports = pkgs.lib.flatten [
         (with outputs.homeManagerModules; [
           bash
-          codium
+          vscode
           (common-home {
             inherit
               pkgs

@@ -41,7 +41,7 @@
         "org.gnome.Nautilus.desktop"
         "org.gnome.Terminal.desktop"
         "google-chrome.desktop"
-        "codium.desktop"
+        "vscode.desktop"
         "keepass.desktop"
       ];
     };
