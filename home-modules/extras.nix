@@ -8,6 +8,7 @@
 
   home = {
     packages = with pkgs; [
+      claude-code
       chromium
       firefox
       google-chrome
