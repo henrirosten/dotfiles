@@ -3,9 +3,6 @@
   outputs,
   ...
 }:
-let
-  user = import ../../users/hrosten.nix;
-in
 {
   imports = [
     inputs.home-manager.nixosModules.home-manager
@@ -15,22 +12,12 @@ in
     inherit inputs outputs;
   };
 
-  home-manager.users."${user.username}" =
-    { lib, ... }:
+  home-manager.users."hrosten" =
+    { ... }:
     {
-      imports = lib.flatten [
-        (with outputs.homeModules; [
-          bash
-          vscode
-          common-home
-          extras
-          git
-          ssh-conf
-          starship
-          vim
-          zsh
-        ])
-        inputs.nix-index-database.homeModules.nix-index
+      imports = with outputs.homeModules; [
+        hm-hrosten
+        extras
       ];
     };
 }

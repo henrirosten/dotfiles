@@ -5,7 +5,7 @@ let
 in
 {
   # system.stateVersion for NixOS system configuration
-  # (separate from home.stateVersion in home-modules/common-home.nix which is for home-manager)
+  # (separate from home.stateVersion in home-modules/hm-hrosten.nix which is for home-manager)
   system.stateVersion = "23.11";
   time.timeZone = "Europe/Helsinki";
   i18n.defaultLocale = "en_US.UTF-8";

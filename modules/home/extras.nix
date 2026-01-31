@@ -6,6 +6,10 @@
 {
   nixpkgs.config.allowUnfree = true;
 
+  imports = [
+    ./vscode.nix
+  ];
+
   home = {
     packages = with pkgs; [
       claude-code
@@ -40,7 +44,6 @@
         "org.gnome.Nautilus.desktop"
         "org.gnome.Terminal.desktop"
         "google-chrome.desktop"
-        "vscode.desktop"
         "keepass.desktop"
       ];
     };

@@ -1,6 +1,5 @@
 {
   bash = import ./bash.nix;
-  common-home = import ./common-home.nix;
   extras = import ./extras.nix;
   git = import ./git.nix;
   hm-hrosten = import ./hm-hrosten.nix;
