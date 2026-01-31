@@ -5,7 +5,6 @@ let
 in
 {
   # system.stateVersion for NixOS system configuration
-  # (separate from home.stateVersion in home-modules/hm-hrosten.nix which is for home-manager)
   system.stateVersion = "23.11";
   time.timeZone = "Europe/Helsinki";
   i18n.defaultLocale = "en_US.UTF-8";
@@ -20,7 +19,7 @@ in
         "nix-command"
         "flakes"
       ];
-      trusted-users = [ user.username ];
+      trusted-users = [ "@wheel" ];
       # Ref:
       # https://nixos.wiki/wiki/Storage_optimization#Automation
       # https://nixos.org/manual/nix/stable/command-ref/conf-file.html#conf-min-free

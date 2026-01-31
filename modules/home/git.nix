@@ -1,7 +1,4 @@
-{ pkgs, ... }:
-let
-  user = import ../../users/hrosten.nix;
-in
+{ pkgs, user, ... }:
 {
   programs.git = {
     enable = true;

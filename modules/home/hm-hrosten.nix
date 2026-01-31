@@ -10,6 +10,8 @@ let
   user = import ../../users/hrosten.nix;
 in
 {
+  _module.args.user = user;
+
   imports = [
     outputs.homeModules.bash
     outputs.homeModules.git
@@ -59,8 +61,6 @@ in
       EDITOR = "vim";
     };
     # home.stateVersion for home-manager configuration
-    # (separate from system.stateVersion in nix-modules/common-nix.nix which is for NixOS)
-    # https://nixos.wiki/wiki/FAQ/When_do_I_update_stateVersion
     stateVersion = "23.11";
   };
   systemd.user.startServices = "sd-switch";

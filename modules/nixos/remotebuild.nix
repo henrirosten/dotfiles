@@ -15,7 +15,7 @@ in
             "big-parallel"
             "kvm"
           ];
-          sshUser = "hrosten";
+          sshUser = user.username;
           sshKey = "${user.homedir}/.ssh/id_ed25519";
         };
       in
