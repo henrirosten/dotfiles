@@ -13,6 +13,7 @@
       gui
       ssh-access
       remotebuild
+      user-hrosten
     ])
     (with inputs.nixos-hardware.nixosModules; [
       lenovo-thinkpad-x1-11th-gen

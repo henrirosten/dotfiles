@@ -1,6 +1,5 @@
 { pkgs, ... }:
 let
-  user = import ../../users/hrosten.nix;
   asGB = size: toString (size * 1024 * 1024 * 1024);
 in
 {
@@ -83,20 +82,7 @@ in
     shells = [ pkgs.zsh ];
   };
   programs.bash.completion.enable = true;
-  users = {
-    defaultUserShell = pkgs.bash;
-    users."${user.username}" = {
-      isNormalUser = true;
-      extraGroups = [
-        "wheel"
-        "networkmanager"
-      ];
-      initialPassword = "changemeonfirstlogin";
-      home = "/home/${user.username}";
-      shell = pkgs.bash;
-      openssh.authorizedKeys.keys = user.keys;
-    };
-  };
+  users.defaultUserShell = pkgs.bash;
 
   networking = {
     networkmanager.enable = true;

@@ -12,6 +12,7 @@
       laptop
       gui
       ssh-access
+      user-hrosten
     ])
     (with inputs.nixos-hardware.nixosModules; [
       lenovo-thinkpad-t480

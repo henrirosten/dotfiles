@@ -30,7 +30,7 @@
       };
     in
     {
-      nixosModules = import ./modules/nixos;
+      nixosModules = (import ./modules/nixos) // (import ./users);
       homeModules = import ./modules/home;
 
       # Standalone home-manager configuration entrypoint

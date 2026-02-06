@@ -1,6 +1,6 @@
 _:
 let
-  user = import ../../users/hrosten.nix;
+  user = (import ../../users/hrosten.nix).user;
 in
 {
   nix = {
