@@ -17,7 +17,7 @@
     {
       imports = with outputs.homeModules; [
         hm-hrosten
-        extras
+        gui-extras
       ];
     };
 }

@@ -13,8 +13,6 @@
   home = {
     packages = with pkgs; [
       chromium
-      claude-code
-      codex
       firefox
       google-chrome
       libreoffice

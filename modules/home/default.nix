@@ -1,6 +1,6 @@
 {
   bash = import ./bash.nix;
-  extras = import ./extras.nix;
+  gui-extras = import ./gui-extras.nix;
   git = import ./git.nix;
   hm-hrosten = import ./hm-hrosten.nix;
   shell-common = import ./shell-common.nix;

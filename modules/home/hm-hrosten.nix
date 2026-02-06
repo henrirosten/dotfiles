@@ -30,6 +30,8 @@ in
       bat
       # burpsuite
       cantarell-fonts
+      claude-code
+      codex
       csvkit
       curl
       dig.dnsutils

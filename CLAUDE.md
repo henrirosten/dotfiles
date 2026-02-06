@@ -42,11 +42,11 @@ home-manager switch --flake .#hrosten
 
 - `flake.nix` - Main entry point defining inputs, outputs, NixOS configurations, and home-manager configurations
 - `hosts/` - Per-machine configurations (x1, t480), each with `configuration.nix`, `hardware-configuration.nix`, and `home.nix`
-- `users/` - User-specific data (name, username, email, ssh keys)
+- `users/` - User-specific NixOS modules defining user accounts (name, username, email, ssh keys, shell, groups)
 - `modules/nixos/` - Reusable NixOS modules (common-nix, gui, laptop, ssh-access, remotebuild, host-common)
-- `modules/home/` - Reusable home-manager modules (bash, zsh, git, vim, starship, ssh-conf, extras, vscode, shell-common)
+- `modules/home/` - Reusable home-manager modules (bash, zsh, git, vim, starship, ssh-conf, gui-extras, vscode, shell-common, hm-hrosten)
 
-Modules are exported via `outputs.nixosModules` and `outputs.homeModules`, then imported in host configurations.
+NixOS modules are exported via `outputs.nixosModules` (includes both `modules/nixos/` and `users/`). Home-manager modules are exported via `outputs.homeModules`.
 
 ## Linting/Formatting
 
