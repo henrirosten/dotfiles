@@ -4,6 +4,9 @@
   lib,
   ...
 }:
+let
+  remoteBuildUser = (import ../../users/hrosten.nix).user;
+in
 {
   imports = lib.flatten [
     (with outputs.nixosModules; [
@@ -12,7 +15,10 @@
       laptop
       gui
       ssh-access
-      remotebuild
+      (remotebuild {
+        sshUser = remoteBuildUser.username;
+        sshKey = "${remoteBuildUser.homedir}/.ssh/id_ed25519";
+      })
       user-hrosten
     ])
     (with inputs.nixos-hardware.nixosModules; [
