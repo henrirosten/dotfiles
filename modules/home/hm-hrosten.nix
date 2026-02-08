@@ -28,10 +28,9 @@ in
     homeDirectory = user.homedir;
     packages = with pkgs; [
       bat
-      # burpsuite
       cantarell-fonts
       claude-code
-      codex
+      inputs.codex-cli-nix.packages.${pkgs.system}.default
       csvkit
       curl
       dig.dnsutils

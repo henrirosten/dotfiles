@@ -12,6 +12,7 @@
 
   home = {
     packages = with pkgs; [
+      burpsuite
       chromium
       firefox
       google-chrome
