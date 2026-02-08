@@ -1,5 +1,7 @@
 { pkgs, ... }:
 {
+  boot.kernelParams = [ "mem_sleep_default=deep" ]; # force S3 sleep mode
+
   environment.systemPackages = with pkgs; [
     brightnessctl
   ];

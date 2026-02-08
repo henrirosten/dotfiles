@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+# Shared shell functions for bash and zsh
+
+# Disable ctrl-s (pause terminal output)
+stty -ixon 2>/dev/null
+
+own-allfiles() {
+  sudo find / -type f ! -path "/dev/*" ! -path "/sys/*" ! -path "/proc/*" ! -path "/run/*" |
+    tee "$HOME/allfiles.txt" >/dev/null
+  echo "Wrote $HOME/allfiles.txt"
+}
+
+own-find-largest() {
+  if [ -z "$1" ]; then
+    findpath="$PWD"
+  else
+    findpath="$1"
+  fi
+  if [ -z "$2" ]; then
+    n="20"
+  else
+    n="$2"
+  fi
+  find "$findpath" -type f -exec du -h {} + | sort -r -h | head -n "$n"
+}
+
+own-find-links() {
+  if [ -z "$1" ]; then
+    findpath="$PWD"
+  else
+    findpath="$1"
+  fi
+  find "$findpath" -type l -exec echo -n "{} -> " \; -exec readlink -f {} \;
+}
+
+own-nix-store-symlinks() {
+  # Find all symlinks in HOME that point somewhere in /nix/store.
+  # grep -v removes (home-manager managed) dotfiles from the output results.
+  own-find-links "$HOME" | grep "/nix/store" | grep -v "$HOME/\."
+}
+
+own-nix-info() {
+  echo "nix-info:"
+  nix-info -m
+  echo "nix-channel:"
+  echo " - root: $(sudo "$(which nix-channel)" --list)"
+  echo " - $USER: $(nix-channel --list)"
+  echo ""
+  echo "nixpkgs:"
+  echo " - nixpkgs version: $(nix-instantiate --eval -E '(import <nixpkgs> {}).lib.version')"
+}
+
+own-nix-clean() {
+  nix-collect-garbage
+  nix-collect-garbage -d
+  # notify if it seems some symlinks prevent full cleanup
+  if own-nix-store-symlinks >/dev/null 2>&1; then
+    echo ""
+    echo "Note: following symlinks in '$HOME' prevent nix-collect-garbage to fully clean the store:"
+    own-nix-store-symlinks
+  fi
+  echo ""
+  echo "Consider manually removing old profiles from '/nix/var/nix/profiles':"
+  find /nix/var/nix/profiles/
+  echo ""
+  echo "Consider manually removing logs from '/nix/var/log/nix/drvs/'"
+  own-find-largest /nix/var/log/nix/drvs/ 10
+}
+
+own-journal-clear() {
+  sudo journalctl --rotate
+  sudo journalctl --vacuum-time=1s
+}

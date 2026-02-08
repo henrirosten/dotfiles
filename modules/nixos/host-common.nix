@@ -1,6 +1,5 @@
 # Common host configuration shared between all NixOS machines
-{ inputs }:
-{ config, ... }:
+{ config, inputs, ... }:
 {
   boot.loader = {
     systemd-boot.enable = true;

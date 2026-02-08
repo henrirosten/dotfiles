@@ -29,13 +29,18 @@
     inputs@{ self, ... }:
     let
       inherit (self) outputs;
+      stateVersion = "23.11";
 
       specialArgs = {
-        inherit inputs outputs;
+        inherit
+          inputs
+          outputs
+          stateVersion
+          ;
       };
     in
     {
-      nixosModules = (import ./modules/nixos) // (import ./users);
+      nixosModules = import ./modules/nixos;
       homeModules = import ./modules/home;
 
       # Standalone home-manager configuration entrypoint

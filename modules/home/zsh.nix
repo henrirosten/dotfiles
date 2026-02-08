@@ -21,6 +21,7 @@
     };
 
     history = {
+      # Must match HISTFILE in shell-common.nix for shared history
       path = "$HOME/.bash_eternal_history";
       size = 1000000;
       save = 1000000;

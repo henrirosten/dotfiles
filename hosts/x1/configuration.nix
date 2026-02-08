@@ -1,43 +1,50 @@
 {
   inputs,
   outputs,
-  lib,
+  stateVersion,
   ...
 }:
 let
-  remoteBuildUser = (import ../../users/hrosten.nix).user;
+  hrosten = (import ../../users/hrosten.nix);
 in
 {
-  imports = lib.flatten [
-    (with outputs.nixosModules; [
-      common-nix
-      (host-common { inherit inputs; })
-      laptop
-      gui
-      ssh-access
-      (remotebuild {
-        sshUser = remoteBuildUser.username;
-        sshKey = "${remoteBuildUser.homedir}/.ssh/id_ed25519";
-      })
-      user-hrosten
-    ])
-    (with inputs.nixos-hardware.nixosModules; [
-      lenovo-thinkpad-x1-11th-gen
-    ])
-    (import ./home.nix {
-      inherit
-        inputs
-        outputs
-        ;
-    })
+  imports = [
+    inputs.home-manager.nixosModules.home-manager
+    inputs.nixos-hardware.nixosModules.lenovo-thinkpad-x1-11th-gen
     ./hardware-configuration.nix
-  ];
+    (outputs.nixosModules.remotebuild {
+      sshUser = hrosten.user.username;
+      sshKey = "${hrosten.user.homedir}/.ssh/id_ed25519";
+    })
+  ]
+  ++ (with outputs.nixosModules; [
+    common-nix
+    host-common
+    laptop
+    gui
+    ssh
+    hrosten.nixosModule
+  ]);
 
   networking.hostName = "x1";
 
-  boot.kernelParams = [ "mem_sleep_default=deep" ]; # force S3 sleep mode
-
   services.avahi.enable = false;
-
   system.autoUpgrade.dates = "weekly";
+
+  home-manager.extraSpecialArgs = {
+    inherit
+      inputs
+      outputs
+      stateVersion
+      ;
+  };
+
+  home-manager.users.${hrosten.user.username} =
+    { ... }:
+    {
+      imports = [
+        outputs.homeModules.hm-hrosten
+        outputs.homeModules.gui-extras
+      ];
+    };
 }

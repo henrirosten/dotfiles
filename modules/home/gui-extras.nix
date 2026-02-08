@@ -1,11 +1,5 @@
+{ pkgs, lib, ... }:
 {
-  pkgs,
-  lib,
-  ...
-}:
-{
-  nixpkgs.config.allowUnfree = true;
-
   imports = [
     ./vscode.nix
   ];
@@ -15,8 +9,14 @@
       burpsuite
       chromium
       firefox
+      flameshot
+      gedit
       google-chrome
+      gnome-terminal
+      gnome-tweaks
+      keepass
       libreoffice
+      meld
       wireshark
     ];
   };
@@ -24,6 +24,7 @@
   dconf.settings = {
     "org/gnome/desktop/interface" = {
       color-scheme = "prefer-dark";
+      show-battery-percentage = lib.hm.gvariant.mkBoolean true;
     };
     # Keyboard repeat settings are configured system-wide in nix-modules/gui.nix
     # via services.xserver.autoRepeatDelay and autoRepeatInterval
@@ -32,9 +33,6 @@
     };
     "org/gnome/desktop/notifications" = {
       show-banners = lib.hm.gvariant.mkBoolean false;
-    };
-    "org/gnome/desktop/interface" = {
-      show-battery-percentage = lib.hm.gvariant.mkBoolean true;
     };
     "org/gnome/desktop/calendar" = {
       show-weekday = lib.hm.gvariant.mkBoolean true;

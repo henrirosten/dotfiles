@@ -1,40 +1,45 @@
 {
   inputs,
   outputs,
-  lib,
+  stateVersion,
   ...
 }:
+let
+  hrosten = (import ../../users/hrosten.nix);
+in
 {
-  imports = lib.flatten [
-    (with outputs.nixosModules; [
-      common-nix
-      (host-common { inherit inputs; })
-      laptop
-      gui
-      ssh-access
-      user-hrosten
-    ])
-    (with inputs.nixos-hardware.nixosModules; [
-      lenovo-thinkpad-t480
-    ])
-    (import ./home.nix {
-      inherit
-        inputs
-        outputs
-        ;
-    })
+  imports = [
+    inputs.home-manager.nixosModules.home-manager
+    inputs.nixos-hardware.nixosModules.lenovo-thinkpad-t480
     ./hardware-configuration.nix
-  ];
+  ]
+  ++ (with outputs.nixosModules; [
+    common-nix
+    host-common
+    laptop
+    gui
+    ssh
+    hrosten.nixosModule
+  ]);
 
   networking.hostName = "t480";
 
-  boot.kernelParams = [ "mem_sleep_default=deep" ]; # force S3 sleep mode
+  system.autoUpgrade.dates = "02:00";
 
-  services = {
-    # fingerprint scanner daemon
-    # to enroll a finger, use sudo fprintd-enroll $USER
-    # fprintd.enable = true;
+  home-manager.extraSpecialArgs = {
+    inherit
+      inputs
+      outputs
+      stateVersion
+      ;
   };
 
-  system.autoUpgrade.dates = "02:00";
+  home-manager.users.${hrosten.user.username} =
+    { ... }:
+    {
+      imports = [
+        outputs.homeModules.hm-hrosten
+        outputs.homeModules.gui-extras
+      ];
+    };
 }

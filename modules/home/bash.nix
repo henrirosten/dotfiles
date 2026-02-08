@@ -14,7 +14,7 @@ _: {
       [ -f "$HOME/.local/share/shell-functions.sh" ] && . "$HOME/.local/share/shell-functions.sh"
 
       export HISTCONTROL=ignoreboth
-      export HISTFILE="$HOME"/.bash_eternal_history
+      # HISTFILE is set in shell-common.nix via sessionVariables
       PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
       #PROMPT_COLOR="1;90m"
       PROMPT_COLOR="1;32m"

@@ -3,6 +3,6 @@
   gui = import ./gui.nix;
   host-common = import ./host-common.nix;
   laptop = import ./laptop.nix;
-  ssh-access = import ./ssh-access.nix;
+  ssh = import ./ssh.nix;
   remotebuild = import ./remotebuild.nix;
 }

@@ -1,10 +1,13 @@
-{ pkgs, ... }:
+{
+  pkgs,
+  stateVersion,
+  ...
+}:
 let
   asGB = size: toString (size * 1024 * 1024 * 1024);
 in
 {
-  # system.stateVersion for NixOS system configuration
-  system.stateVersion = "23.11";
+  system.stateVersion = stateVersion;
   time.timeZone = "Europe/Helsinki";
   i18n.defaultLocale = "en_US.UTF-8";
   boot.blacklistedKernelModules = [ "pcspkr" ];
@@ -90,14 +93,10 @@ in
     enableIPv6 = false;
   };
 
-  # List packages installed in system profile
+  # Minimal system packages - user tools managed by home-manager
   environment.systemPackages = with pkgs; [
-    curl
     git
-    htop
-    nixVersions.latest # use the latest version of 'nix'
-    vim
-    wget
+    nixVersions.latest
   ];
 
   # Enable zramSwap: https://search.nixos.org/options?show=zramSwap.enable
