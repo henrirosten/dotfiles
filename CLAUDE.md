@@ -41,10 +41,11 @@ home-manager switch --flake .#hrosten
 ## Architecture
 
 - `flake.nix` - Main entry point defining inputs, outputs, NixOS configurations, and home-manager configurations
-- `hosts/` - Per-machine configurations (x1, t480), each with `configuration.nix`, `hardware-configuration.nix`, and `home.nix`
+- `hosts/` - Per-machine configurations (x1, t480), each with `configuration.nix` and `hardware-configuration.nix`
 - `users/` - User-specific NixOS modules defining user accounts (name, username, email, ssh keys, shell, groups)
 - `modules/nixos/` - Reusable NixOS modules (common-nix, gui, laptop, ssh-access, remotebuild, host-common)
-- `modules/home/` - Reusable home-manager modules (bash, zsh, git, vim, starship, ssh-conf, gui-extras, vscode, shell-common, hm-hrosten)
+- `modules/home/` - Reusable home-manager modules (bash, zsh, git, vim, starship, ssh-conf, gui-extras, vscode, shell-common)
+- `users/hrosten/home.nix` - User profile composition for hrosten home-manager setup
 
 NixOS modules are exported via `outputs.nixosModules` (includes both `modules/nixos/` and `users/`). Home-manager modules are exported via `outputs.homeModules`.
 

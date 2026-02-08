@@ -30,6 +30,13 @@
     let
       inherit (self) outputs;
       stateVersion = "23.11";
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+      ];
+      defaultSystem = "x86_64-linux";
+      forAllSystems = inputs.nixpkgs.lib.genAttrs systems;
+      mkPkgs = system: inputs.nixpkgs.legacyPackages.${system};
 
       specialArgs = {
         inherit
@@ -38,43 +45,10 @@
           stateVersion
           ;
       };
-    in
-    {
-      nixosModules = import ./modules/nixos;
-      homeModules = import ./modules/home;
 
-      # Standalone home-manager configuration entrypoint
-      # Available through 'home-manager switch --flake .#hrosten'
-      homeConfigurations = {
-        "hrosten" = inputs.home-manager.lib.homeManagerConfiguration {
-          pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
-          extraSpecialArgs = specialArgs;
-          modules = [ outputs.homeModules.hm-hrosten ];
-        };
-      };
-
-      nixosConfigurations = {
-        x1 = inputs.nixpkgs.lib.nixosSystem {
-          inherit specialArgs;
-          modules = [ ./hosts/x1/configuration.nix ];
-        };
-        t480 = inputs.nixpkgs.lib.nixosSystem {
-          inherit specialArgs;
-          modules = [ ./hosts/t480/configuration.nix ];
-        };
-      };
-
-      formatter.x86_64-linux =
-        let
-          inherit (outputs.checks.x86_64-linux.pre-commit-check.config) package configFile;
-          pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
-        in
-        pkgs.writeShellScriptBin "pre-commit-run" ''
-          ${pkgs.lib.getExe package} run --all-files --config ${configFile}
-        '';
-
-      checks.x86_64-linux = {
-        pre-commit-check = inputs.git-hooks-nix.lib.x86_64-linux.run {
+      mkPreCommitCheck =
+        system:
+        inputs.git-hooks-nix.lib.${system}.run {
           src = self.outPath;
           # default_stages = ["pre-commit" "pre-push"];
           hooks = {
@@ -107,13 +81,66 @@
             };
           };
         };
-      };
+    in
+    {
+      nixosModules = import ./modules/nixos;
+      homeModules = import ./modules/home;
 
-      devShells.x86_64-linux = {
-        default = inputs.nixpkgs.legacyPackages.x86_64-linux.mkShell {
-          inherit (self.checks.x86_64-linux.pre-commit-check) shellHook;
-          buildInputs = self.checks.x86_64-linux.pre-commit-check.enabledPackages;
+      # Standalone home-manager configuration entrypoint
+      # Available through 'home-manager switch --flake .#hrosten'
+      # Cross-system entries are also exported as:
+      # - hrosten-x86_64-linux
+      # - hrosten-aarch64-linux
+      homeConfigurations =
+        (builtins.listToAttrs (
+          map (system: {
+            name = "hrosten-${system}";
+            value = inputs.home-manager.lib.homeManagerConfiguration {
+              pkgs = mkPkgs system;
+              extraSpecialArgs = specialArgs;
+              modules = [ ./users/hrosten/home.nix ];
+            };
+          }) systems
+        ))
+        // {
+          "hrosten" = inputs.home-manager.lib.homeManagerConfiguration {
+            pkgs = mkPkgs defaultSystem;
+            extraSpecialArgs = specialArgs;
+            modules = [ ./users/hrosten/home.nix ];
+          };
+        };
+
+      nixosConfigurations = {
+        x1 = inputs.nixpkgs.lib.nixosSystem {
+          inherit specialArgs;
+          modules = [ ./hosts/x1/configuration.nix ];
+        };
+        t480 = inputs.nixpkgs.lib.nixosSystem {
+          inherit specialArgs;
+          modules = [ ./hosts/t480/configuration.nix ];
         };
       };
+
+      formatter = forAllSystems (
+        system:
+        let
+          inherit (outputs.checks.${system}.pre-commit-check.config) package configFile;
+          pkgs = mkPkgs system;
+        in
+        pkgs.writeShellScriptBin "pre-commit-run" ''
+          ${pkgs.lib.getExe package} run --all-files --config ${configFile}
+        ''
+      );
+
+      checks = forAllSystems (system: {
+        pre-commit-check = mkPreCommitCheck system;
+      });
+
+      devShells = forAllSystems (system: {
+        default = (mkPkgs system).mkShell {
+          inherit (self.checks.${system}.pre-commit-check) shellHook;
+          buildInputs = self.checks.${system}.pre-commit-check.enabledPackages;
+        };
+      });
     };
 }

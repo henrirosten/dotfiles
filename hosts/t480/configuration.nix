@@ -5,7 +5,7 @@
   ...
 }:
 let
-  hrosten = (import ../../users/hrosten.nix);
+  hrosten = (import ../../users/hrosten/hrosten.nix);
 in
 {
   imports = [
@@ -38,7 +38,7 @@ in
     { ... }:
     {
       imports = [
-        outputs.homeModules.hm-hrosten
+        ../../users/hrosten/home.nix
         outputs.homeModules.gui-extras
       ];
     };

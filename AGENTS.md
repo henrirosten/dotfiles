@@ -2,10 +2,11 @@
 
 ## Project Structure & Module Organization
 - `flake.nix` defines inputs/outputs, NixOS configs, home-manager configs, checks, and formatter.
-- `hosts/` contains per-machine configs (`x1`, `t480`) with `configuration.nix`, `hardware-configuration.nix`, and `home.nix`.
+- `hosts/` contains per-machine configs (`x1`, `t480`) with `configuration.nix` and `hardware-configuration.nix`.
 - `modules/nixos/` holds reusable NixOS modules (e.g., `host-common.nix`, `gui.nix`).
 - `modules/home/` holds reusable home-manager modules (e.g., `git.nix`, `vim.nix`, `shell-common.nix`).
-- `users/` contains user-specific data (e.g., `users/hrosten.nix`).
+- `users/` contains user-specific data (e.g., `users/hrosten/hrosten.nix`).
+- `users/hrosten/home.nix` defines the home-manager profile composition.
 - `bootstrap-ubuntu.sh` bootstraps Nix on Ubuntu for home-manager usage.
 
 ## Build, Test, and Development Commands
