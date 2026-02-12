@@ -1,0 +1,83 @@
+name: bootstrap ubuntu
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "bootstrap-ubuntu.sh"
+      - ".github/workflows/bootstrap-ubuntu.yml"
+      - "flake.nix"
+      - "flake.lock"
+      - "modules/home/**"
+      - "users/**"
+
+jobs:
+  lint-bootstrap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install lint tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck shfmt
+
+      - name: Run shellcheck
+        run: shellcheck bootstrap-ubuntu.sh
+
+      - name: Run shfmt check
+        run: shfmt -d -i 2 bootstrap-ubuntu.sh
+
+  bootstrap-integration:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-22.04
+          - ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Runner preflight
+        run: |
+          sudo -n true
+          lsb_release -a || cat /etc/os-release
+
+      - name: Run bootstrap script
+        id: bootstrap
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          export DEBIAN_FRONTEND=noninteractive
+          timeout 45m bash ./bootstrap-ubuntu.sh |& tee bootstrap.log
+
+      - name: Assert bootstrap result
+        run: |
+          if [ "${{ steps.bootstrap.outcome }}" != "success" ]; then
+            echo "bootstrap-ubuntu.sh failed"
+            exit 1
+          fi
+
+      - name: Verify nix is installed and configured
+        run: |
+          set -euo pipefail
+          command -v nix
+          command -v nix-shell
+          nix --version
+          sudo systemctl is-active nix-daemon
+          grep -q "experimental-features = nix-command flakes" /etc/nix/nix.conf
+          nix flake metadata .
+          nix build .#homeConfigurations.hrosten.activationPackage -L
+
+      - name: Upload bootstrap log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bootstrap-log-${{ matrix.os }}
+          path: bootstrap.log
+          if-no-files-found: ignore
