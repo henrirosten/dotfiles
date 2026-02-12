@@ -52,14 +52,14 @@
           ;
       };
 
-      mkPreCommitCheck = import ./nix/pre-commit-check.nix {
+      mkPreCommitCheck = import ./flake/pre-commit-check.nix {
         inherit
           inputs
           self
           ;
       };
 
-      nixosConfigurations = import ./nix/nixos-configurations.nix {
+      nixosConfigurations = import ./flake/nixos-configurations.nix {
         inherit
           inputs
           specialArgs
@@ -71,7 +71,7 @@
       # Cross-system entries are also exported as:
       # - hrosten-x86_64-linux
       # - hrosten-aarch64-linux
-      homeConfigurations = import ./nix/home-configurations.nix {
+      homeConfigurations = import ./flake/home-configurations.nix {
         inherit
           inputs
           systems
@@ -81,7 +81,7 @@
           ;
       };
 
-      apps = import ./nix/apps-vm.nix {
+      apps = import ./flake/apps-vm.nix {
         inherit
           inputs
           forAllSystems
@@ -90,7 +90,7 @@
           ;
       };
 
-      checks = import ./nix/checks.nix {
+      checks = import ./flake/checks.nix {
         inherit
           inputs
           forAllSystems
@@ -102,7 +102,7 @@
         moduleOutputs = moduleOutputs;
       };
 
-      formatter = import ./nix/formatter.nix {
+      formatter = import ./flake/formatter.nix {
         inherit
           forAllSystems
           mkPkgs
@@ -110,7 +110,7 @@
           ;
       };
 
-      devShells = import ./nix/dev-shells.nix {
+      devShells = import ./flake/dev-shells.nix {
         inherit
           forAllSystems
           mkPkgs
