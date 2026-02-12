@@ -1,88 +1,112 @@
 # dotfiles
 
-Nix flake-based configurations for NixOS systems and standalone home-manager on Ubuntu.
+Nix flake-based configuration repo for:
+- NixOS hosts
+- standalone Home Manager (e.g. Ubuntu)
 
-## Hosts
+## Managed Hosts
 
 | Host | Description |
 |------|-------------|
-| x1   | ThinkPad X1 Carbon |
-| t480 | ThinkPad T480 |
+| `x1` | ThinkPad X1 Carbon |
+| `t480` | ThinkPad T480 |
 
 ## Quick Start
 
-Clone this repository:
 ```bash
 git clone https://github.com/henrirosten/dotfiles.git
 cd dotfiles
 ```
 
-### NixOS
+## Common Commands
 
-Build and apply configuration:
+Enter development shell:
 ```bash
 nix develop
-nixos-rebuild build --flake .#hostname
-sudo nixos-rebuild switch --flake .#hostname
 ```
 
-Replace `hostname` with `x1` or `t480`.
+Format and lint:
+```bash
+nix fmt
+```
 
-#### Testing host configuration in VM
+Run flake checks (eval/build checks):
+```bash
+nix flake check --option allow-import-from-derivation false
+```
 
-Start a host configuration in a headless test VM (getty autologin as `root`):
+## NixOS Usage
+
+Build host config:
+```bash
+nixos-rebuild build --flake .#x1
+nixos-rebuild build --flake .#t480
+```
+
+Apply host config:
+```bash
+sudo nixos-rebuild switch --flake .#x1
+sudo nixos-rebuild switch --flake .#t480
+```
+
+## VM Host Testing
+
+Run host config in a headless VM (autologin as `root`):
 ```bash
 nix run .#x1-vm
 nix run .#t480-vm
 ```
 
-By default the VM disk image is removed on exit. Keep it with:
+Keep VM disk image:
 ```bash
 nix run .#x1-vm -- --keep-disk
 ```
 
-You can also choose CPU/RAM/disk size and disk path:
+Override VM resources and disk:
 ```bash
 nix run .#x1-vm -- --ram-mb 2048 --cpus 2 --disk-size 16G --disk-image ./x1.qcow2 --keep-disk
 ```
 
-### Ubuntu (standalone home-manager)
+## Standalone Home Manager (Ubuntu)
 
-Install Nix package manager either via https://nixos.org/download or the bootstrap script:
+Install Nix either from <https://nixos.org/download> or with:
 ```bash
 ./bootstrap-ubuntu.sh
 ```
 
-Then start a new shell and apply home-manager configuration:
+Then apply home-manager profile:
 ```bash
-nix-shell
+nix develop
 home-manager switch --flake .#hrosten
 ```
 
-## Development
+## CI and Automation
 
-Enter dev shell (enables pre-commit hooks):
-```bash
-nix develop
-```
+- `.github/workflows/check.yml`
+  - runs formatting/lint checks and host builds on pushes to `main`
+- `.github/workflows/flake-update.yml`
+  - scheduled flake input update at `04:00 UTC` (about `06:00 EET`)
+  - can also be triggered manually via `workflow_dispatch`
+  - validates `.#checks.x86_64-linux.x1-vm-codex-smoke` before PR creation
 
-Format and lint all files:
-```bash
-nix fmt
-```
+## Repository Layout
 
-Run flake checks:
-```bash
-nix flake check
-```
-
-## Structure
-
-```
-flake.nix           # Main entry point
-hosts/              # Per-machine configs
-users/              # User account modules
+```text
+flake.nix                    # Flake entrypoint
+flake/                       # Split flake output builders
+  apps-vm.nix
+  checks.nix
+  dev-shells.nix
+  formatter.nix
+  home-configurations.nix
+  nixos-configurations.nix
+  pre-commit-check.nix
+hosts/                       # Per-host NixOS configs
 modules/
-  nixos/            # NixOS modules
-  home/             # home-manager modules
+  nixos/                     # Reusable NixOS modules
+  home/                      # Reusable Home Manager modules
+users/                       # User-specific modules and HM composition
+scripts/
+  run-vm.sh                  # VM runner template used by flake VM apps
+bootstrap-ubuntu.sh          # Nix bootstrap helper for Ubuntu
 ```
