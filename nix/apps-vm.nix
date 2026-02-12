@@ -53,113 +53,27 @@ forAllSystems (
         ];
       };
       vmRunner = "${vmConfig.config.system.build.vm}/bin/run-${name}-vm";
+      vmAppRunner = pkgs.replaceVarsWith {
+        src = ../scripts/run-vm.sh;
+        name = "run-${name}-vm";
+        dir = "bin";
+        isExecutable = true;
+        replacements = {
+          vmName = name;
+          defaultRamMb = toString (ramGb * 1024);
+          defaultCpus = toString vcpus;
+          defaultDiskSize = "${toString diskGb}G";
+          defaultDiskImage = "./${name}.qcow2";
+          mktemp = "${pkgs.coreutils}/bin/mktemp";
+          qemuImg = "${pkgs.qemu}/bin/qemu-img";
+          mkfsExt4 = "${pkgs.e2fsprogs}/bin/mkfs.ext4";
+          inherit vmRunner;
+        };
+      };
     in
     lib.nameValuePair "${name}-vm" {
       type = "app";
-      program = toString (
-        pkgs.writeShellScript "run-${name}-vm" ''
-          cleanup_disk=1
-          ram_mb="${toString (ramGb * 1024)}"
-          cpus="${toString vcpus}"
-          disk_size="${toString diskGb}G"
-          disk_image="''${NIX_DISK_IMAGE:-./${name}.qcow2}"
-          override_ram=0
-          override_cpus=0
-          override_disk_size=0
-
-          if [ -n "''${VM_KEEP_DISK:-}" ]; then
-            cleanup_disk=0
-          fi
-
-          while [ "$#" -gt 0 ]; do
-            case "$1" in
-              --keep-disk)
-                cleanup_disk=0
-                shift
-                ;;
-              --delete-disk)
-                cleanup_disk=1
-                shift
-                ;;
-              --disk-image)
-                disk_image="$2"
-                shift 2
-                ;;
-              --ram-mb)
-                ram_mb="$2"
-                override_ram=1
-                shift 2
-                ;;
-              --cpus)
-                cpus="$2"
-                override_cpus=1
-                shift 2
-                ;;
-              --disk-size)
-                disk_size="$2"
-                override_disk_size=1
-                shift 2
-                ;;
-              --help|-h)
-                cat <<'EOF'
-          Usage: nix run .#${name}-vm -- [OPTIONS] [-- RUNNER_ARGS...]
-
-          Options:
-            --keep-disk        Keep disk image after VM exits
-            --delete-disk      Remove disk image on VM exit (default)
-            --ram-mb MB        RAM in MiB (default: ${toString (ramGb * 1024)})
-            --cpus N           Number of CPUs (default: ${toString vcpus})
-            --disk-size SIZE   Disk size (e.g. 8G, 16384M; default: ${toString diskGb}G)
-            --disk-image PATH  Disk image path (default: ./${name}.qcow2)
-
-          Environment:
-            VM_KEEP_DISK=1     Keep disk image after VM exits
-            NIX_DISK_IMAGE     Override disk image path
-          EOF
-                exit 0
-                ;;
-              --)
-                shift
-                break
-                ;;
-              *)
-                break
-                ;;
-            esac
-          done
-
-          export NIX_DISK_IMAGE="$disk_image"
-          if [ "$override_ram" -eq 1 ]; then
-            export QEMU_OPTS="''${QEMU_OPTS:+$QEMU_OPTS }-m $ram_mb"
-          fi
-          if [ "$override_cpus" -eq 1 ]; then
-            export QEMU_OPTS="''${QEMU_OPTS:+$QEMU_OPTS }-smp $cpus"
-          fi
-          if [ "$override_disk_size" -eq 1 ]; then
-            if [ ! -e "$disk_image" ]; then
-              tmp_raw="$(${pkgs.coreutils}/bin/mktemp -t ${name}-disk.XXXXXX)"
-              ${pkgs.qemu}/bin/qemu-img create -f raw "$tmp_raw" "$disk_size"
-              ${pkgs.e2fsprogs}/bin/mkfs.ext4 -L nixos "$tmp_raw" >/dev/null
-              ${pkgs.qemu}/bin/qemu-img convert -f raw -O qcow2 "$tmp_raw" "$disk_image"
-              rm -f -- "$tmp_raw"
-            else
-              ${pkgs.qemu}/bin/qemu-img resize "$disk_image" "$disk_size" >/dev/null
-            fi
-          fi
-
-          cleanup() {
-            status="$?"
-            if [ "$cleanup_disk" -eq 1 ] && [ -f "$disk_image" ]; then
-              rm -f -- "$disk_image"
-            fi
-            exit "$status"
-          }
-
-          trap cleanup EXIT INT TERM
-
-          ${vmRunner} "$@"
-        ''
-      );
+      program = "${vmAppRunner}/bin/run-${name}-vm";
       meta = {
         description = "Run the ${name} NixOS configuration in a headless VM";
       };
