@@ -4,7 +4,7 @@
     enable = true;
     plugins = with pkgs.vimPlugins; [
       vim-airline
-      pathogen
+      vim-pathogen
     ];
     extraConfig = builtins.readFile ./vimrc;
   };
