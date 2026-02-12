@@ -28,6 +28,24 @@ sudo nixos-rebuild switch --flake .#hostname
 
 Replace `hostname` with `x1` or `t480`.
 
+#### Testing host configuration in VM
+
+Start a host configuration in a headless test VM (getty autologin as `root`):
+```bash
+nix run .#x1-vm
+nix run .#t480-vm
+```
+
+By default the VM disk image is removed on exit. Keep it with:
+```bash
+nix run .#x1-vm -- --keep-disk
+```
+
+You can also choose CPU/RAM/disk size and disk path:
+```bash
+nix run .#x1-vm -- --ram-mb 2048 --cpus 2 --disk-size 16G --disk-image ./x1.qcow2 --keep-disk
+```
+
 ### Ubuntu (standalone home-manager)
 
 Install Nix package manager either via https://nixos.org/download or the bootstrap script:
