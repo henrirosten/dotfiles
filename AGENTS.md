@@ -12,7 +12,7 @@
 ## Build, Test, and Development Commands
 - `nix-shell`: enter the dev shell with pre-commit hooks enabled.
 - `nix fmt`: run formatter and linters via the flake formatter.
-- `nix flake check`: run flake checks (pre-commit hooks).
+- `nix flake check --option allow-import-from-derivation false`: run flake checks (pre-commit hooks).
 - `nixos-rebuild build --flake .#hostname`: build a host config (use `x1` or `t480`).
 - `sudo nixos-rebuild switch --flake .#hostname`: apply a host config.
 - `home-manager switch --flake .#hrosten`: apply the standalone home-manager config.
@@ -26,12 +26,15 @@
 - File/module naming is kebab-case (e.g., `shell-common.nix`, `host-common.nix`).
 
 ## Testing Guidelines
-- There are no unit tests in this repo; rely on `nix flake check` for checks.
+There is no standalone unit-test suite; validation is check-driven.
+- Run `nix fmt` to catch formatting/lint issues early.
+- Run `nix flake check --option allow-import-from-derivation false --no-build` for checks.
 - Validate changes by building a target host or switching home-manager when relevant.
 
 ## Commit & Pull Request Guidelines
 - Commit messages are short and imperative (e.g., “Add vscode”, “Refactor home modules”, “Flake update”).
 - Keep commits focused on a single change or theme.
+- Include a `Signed-off-by:` trailer in commit messages.
 - PRs should describe the affected hosts/modules, include the commands run (e.g., `nix flake check`), and link related issues if any.
 
 ## Agent-Specific Instructions
