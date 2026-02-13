@@ -14,6 +14,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  id-token: write
 
 jobs:
   update-and-pr:
@@ -31,6 +32,9 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
             system-features = nixos-test benchmark big-parallel kvm
+
+      - name: Enable Magic Nix Cache
+        uses: DeterminateSystems/magic-nix-cache-action@565684385bcd71bad329742eefe8d12f2e765b39 # v13
 
       - name: Snapshot lockfile before update
         run: cp flake.lock "${{ runner.temp }}/flake.lock.before"
@@ -141,6 +145,9 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
             system-features = nixos-test benchmark big-parallel kvm
+
+      - name: Enable Magic Nix Cache
+        uses: DeterminateSystems/magic-nix-cache-action@565684385bcd71bad329742eefe8d12f2e765b39 # v13
 
       - name: Run x1 VM codex smoke check
         run: nix build .#checks.x86_64-linux.x1-vm-codex-smoke -L

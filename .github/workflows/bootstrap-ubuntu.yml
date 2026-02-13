@@ -11,6 +11,10 @@ on:
       - "modules/home/**"
       - "users/**"
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   lint-bootstrap:
     runs-on: ubuntu-latest
@@ -62,6 +66,9 @@ jobs:
             echo "bootstrap-ubuntu.sh failed"
             exit 1
           fi
+
+      - name: Enable Magic Nix Cache
+        uses: DeterminateSystems/magic-nix-cache-action@565684385bcd71bad329742eefe8d12f2e765b39 # v13
 
       - name: Verify nix is installed and configured
         run: |
