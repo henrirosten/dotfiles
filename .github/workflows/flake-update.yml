@@ -30,6 +30,7 @@ jobs:
         uses: cachix/install-nix-action@08dcb3a5e62fa31e2da3d490afc4176ef55ecd72 # v30
         with:
           extra_nix_config: |
+            extra-trusted-substituters = http://127.0.0.1
             experimental-features = nix-command flakes
             system-features = nixos-test benchmark big-parallel kvm
 
@@ -145,6 +146,7 @@ jobs:
         uses: cachix/install-nix-action@08dcb3a5e62fa31e2da3d490afc4176ef55ecd72 # v30
         with:
           extra_nix_config: |
+            extra-trusted-substituters = http://127.0.0.1
             experimental-features = nix-command flakes
             system-features = nixos-test benchmark big-parallel kvm
 
