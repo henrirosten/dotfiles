@@ -11,16 +11,16 @@ on:
       - "modules/home/**"
       - "users/**"
 
-permissions:
-  contents: read
-  id-token: write
-
 jobs:
   lint-bootstrap:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
 
       - name: Install lint tools
         run: |
@@ -36,6 +36,9 @@ jobs:
   bootstrap-integration:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
+    permissions:
+      contents: read
+      id-token: write
     strategy:
       fail-fast: false
       matrix:
@@ -46,6 +49,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
 
       - name: Runner preflight
         run: |
@@ -61,8 +66,10 @@ jobs:
           timeout 45m bash ./bootstrap-ubuntu.sh |& tee bootstrap.log
 
       - name: Assert bootstrap result
+        env:
+          BOOTSTRAP_OUTCOME: ${{ steps.bootstrap.outcome }}
         run: |
-          if [ "${{ steps.bootstrap.outcome }}" != "success" ]; then
+          if [ "$BOOTSTRAP_OUTCOME" != "success" ]; then
             echo "bootstrap-ubuntu.sh failed"
             exit 1
           fi
