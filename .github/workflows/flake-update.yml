@@ -54,6 +54,8 @@ jobs:
         continue-on-error: true
         uses: peter-evans/create-pull-request@v7
         with:
+          # Use a PAT/App token if provided so downstream PR workflows run.
+          token: ${{ secrets.FLAKE_UPDATE_TOKEN || github.token }}
           add-paths: flake.lock
           branch: chore/automated-flake-update
           delete-branch: true
@@ -69,8 +71,9 @@ jobs:
       - name: PR creation fallback info
         if: steps.changes.outputs.changed == 'true' && steps.cpr.outcome == 'failure'
         run: |
-          echo "::warning::Automatic PR creation is disabled for GITHUB_TOKEN in repository settings."
-          echo "::warning::Enable 'Allow GitHub Actions to create and approve pull requests' under Settings > Actions > General."
+          echo "::warning::Automatic PR creation failed."
+          echo "::warning::Set repository secret FLAKE_UPDATE_TOKEN (PAT or GitHub App token with repo scope) so PR-created events trigger downstream workflows."
+          echo "::warning::If using GITHUB_TOKEN fallback, enable 'Allow GitHub Actions to create and approve pull requests' under Settings > Actions > General."
           echo "::warning::Manual PR URL: https://github.com/${{ github.repository }}/compare/${{ github.event.repository.default_branch }}...chore/automated-flake-update?expand=1"
 
   x1-vm-codex-smoke:
