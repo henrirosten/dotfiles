@@ -34,6 +34,7 @@ in
       curl
       dig.dnsutils
       file
+      gh
       htop
       jq
       net-tools
@@ -41,6 +42,7 @@ in
       openconnect
       openfortivpn
       openvpn
+      ripgrep
       sbomnix
       tree
       wget
