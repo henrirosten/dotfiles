@@ -27,7 +27,7 @@ jobs:
           persist-credentials: false
 
       - name: Install nix
-        uses: cachix/install-nix-action@08dcb3a5e62fa31e2da3d490afc4176ef55ecd72 # v30
+        uses: cachix/install-nix-action@4e002c8ec80594ecd40e759629461e26c8abed15 # v31.9.0
         with:
           extra_nix_config: |
             extra-trusted-substituters = http://127.0.0.1
