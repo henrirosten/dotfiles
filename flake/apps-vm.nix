@@ -9,6 +9,8 @@ forAllSystems (
   let
     lib = inputs.nixpkgs.lib;
     pkgs = mkPkgs system;
+    hrosten = import ../users/hrosten/hrosten.nix;
+    username = hrosten.user.username;
     sameSystemNixosConfigurations = lib.filterAttrs (
       _: nixosConfig: nixosConfig.pkgs.stdenv.hostPlatform.system == system
     ) nixosConfigurations;
@@ -16,39 +18,47 @@ forAllSystems (
   lib.mapAttrs' (
     name: nixosConfig:
     let
-      vcpus = 1;
-      ramGb = 1;
-      diskGb = 8;
+      isGeneric = name == "generic";
+      vcpus = if isGeneric then 4 else 1;
+      ramGb = if isGeneric then 16 else 1;
+      diskGb = if isGeneric then 100 else 8;
       vmConfig = nixosConfig.extendModules {
         modules = [
           (
             { lib, ... }:
-            {
-              virtualisation.vmVariant.virtualisation = {
-                graphics = lib.mkForce true;
-                cores = lib.mkForce vcpus;
-                memorySize = lib.mkForce (ramGb * 1024);
-                diskSize = lib.mkForce (diskGb * 1024);
-                writableStore = lib.mkForce true;
-                useNixStoreImage = lib.mkForce false;
-                mountHostNixStore = lib.mkForce true;
-                writableStoreUseTmpfs = lib.mkForce false;
-                qemu.consoles = lib.mkForce [ "ttyS0,115200n8" ];
-                qemu.options = lib.mkAfter [
-                  "-display none"
-                  "-serial mon:stdio"
-                  "-device virtio-balloon"
-                  "-enable-kvm"
+            (
+              {
+                virtualisation.vmVariant.virtualisation = {
+                  graphics = lib.mkForce true;
+                  cores = lib.mkForce vcpus;
+                  memorySize = lib.mkForce (ramGb * 1024);
+                  diskSize = lib.mkForce (diskGb * 1024);
+                  writableStore = lib.mkForce true;
+                  useNixStoreImage = lib.mkForce false;
+                  mountHostNixStore = lib.mkForce true;
+                  writableStoreUseTmpfs = lib.mkForce false;
+                  qemu.consoles = lib.mkForce [ "ttyS0,115200n8" ];
+                  qemu.options = lib.mkAfter [
+                    "-display none"
+                    "-serial mon:stdio"
+                    "-device virtio-balloon"
+                    "-enable-kvm"
+                  ];
+                };
+                services.getty.autologinUser = lib.mkForce (if isGeneric then username else "root");
+                # Keep codex-cli available in VM even when HM activation is disabled.
+                environment.systemPackages = lib.mkAfter [
+                  inputs.codex-cli-nix.packages.${system}.default
                 ];
-              };
-              services.getty.autologinUser = lib.mkForce "root";
-              # Home Manager activation can take minutes in VM boot; disable it for fast test boots.
-              systemd.services."home-manager-hrosten".enable = lib.mkForce false;
-              # Keep codex-cli available in VM even when HM activation is disabled.
-              environment.systemPackages = lib.mkAfter [
-                inputs.codex-cli-nix.packages.${system}.default
-              ];
-            }
+              }
+              // lib.optionalAttrs (!isGeneric) {
+                # Home Manager activation can take minutes in VM boot; disable it for fast test boots.
+                systemd.services."home-manager-${username}".enable = lib.mkForce false;
+              }
+              // lib.optionalAttrs isGeneric {
+                security.sudo.wheelNeedsPassword = lib.mkForce false;
+              }
+            )
           )
         ];
       };
@@ -64,6 +74,8 @@ forAllSystems (
           defaultCpus = toString vcpus;
           defaultDiskSize = "${toString diskGb}G";
           defaultDiskImage = "./${name}.qcow2";
+          defaultCleanupDisk = if isGeneric then "0" else "1";
+          defaultCleanupBehavior = if isGeneric then "kept" else "deleted";
           mktemp = "${pkgs.coreutils}/bin/mktemp";
           qemuImg = "${pkgs.qemu}/bin/qemu-img";
           mkfsExt4 = "${pkgs.e2fsprogs}/bin/mkfs.ext4";
@@ -75,7 +87,7 @@ forAllSystems (
       type = "app";
       program = "${vmAppRunner}/bin/run-${name}-vm";
       meta = {
-        description = "Run the ${name} NixOS configuration in a headless VM";
+        description = "Run ${name} VM - 'nix run .#${name}-vm -- --help'";
       };
     }
   ) sameSystemNixosConfigurations

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-cleanup_disk=1
+cleanup_disk=@defaultCleanupDisk@
 ram_mb="@defaultRamMb@"
 cpus="@defaultCpus@"
 disk_size="@defaultDiskSize@"
@@ -48,7 +48,7 @@ Usage: nix run .#@vmName@-vm -- [OPTIONS] [-- RUNNER_ARGS...]
 
 Options:
   --keep-disk        Keep disk image after VM exits
-  --delete-disk      Remove disk image on VM exit (default)
+  --delete-disk      Remove disk image on VM exit
   --ram-mb MB        RAM in MiB (default: @defaultRamMb@)
   --cpus N           Number of CPUs (default: @defaultCpus@)
   --disk-size SIZE   Disk size (e.g. 8G, 16384M; default: @defaultDiskSize@)
@@ -57,6 +57,7 @@ Options:
 Environment:
   VM_KEEP_DISK=1     Keep disk image after VM exits
   NIX_DISK_IMAGE     Override disk image path
+  Default behavior: disk image is @defaultCleanupBehavior@ on VM exit
 EOF
     exit 0
     ;;

@@ -1,5 +1,10 @@
 { inputs, specialArgs }:
 {
+  generic = inputs.nixpkgs.lib.nixosSystem {
+    inherit specialArgs;
+    modules = [ ../hosts/generic/configuration.nix ];
+  };
+
   x1 = inputs.nixpkgs.lib.nixosSystem {
     inherit specialArgs;
     modules = [ ../hosts/x1/configuration.nix ];
