@@ -5,10 +5,16 @@ on:
     branches:
       - main
   pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}.${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     permissions:
       contents: read
       id-token: write
@@ -30,8 +36,8 @@ jobs:
         run: nix fmt -- --fail-on-change
       - name: Check nix flake show runs successfully
         run: nix flake show --all-systems
-      - name: Run nix flake check
-        run: nix flake check -v
+      - name: Run nix flake check (no build)
+        run: nix flake check --option allow-import-from-derivation false --no-build
   build_matrix:
     name: "build"
     runs-on: ubuntu-latest
@@ -40,13 +46,9 @@ jobs:
       contents: read
       id-token: write
     strategy:
+      fail-fast: false
       matrix:
         target: [x1, t480]
-    concurrency:
-      # Cancel any in-progress workflow runs from the same PR or branch,
-      # allowing matrix jobs to run concurrently:
-      group: ${{ github.workflow }}.${{ github.event.pull_request.number || github.ref }}.${{ matrix.target }}
-      cancel-in-progress: true
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -55,14 +57,11 @@ jobs:
       - name: Install nix
         uses: cachix/install-nix-action@4e002c8ec80594ecd40e759629461e26c8abed15 # v31.9.0
         with:
-          nix_path: nixpkgs=channel:nixos-unstable
           extra_nix_config: |
             extra-trusted-substituters = http://127.0.0.1
       - name: Enable Magic Nix Cache
         uses: DeterminateSystems/magic-nix-cache-action@565684385bcd71bad329742eefe8d12f2e765b39 # v13
         with:
           use-flakehub: false
-      - name: Print runner system info
-        run: nix-shell --quiet -p inxi --run 'inxi -c0 --width -1 --basic --memory-short'
       - name: Build target '${{ matrix.target }}'
-        run: nix-shell --quiet --run 'nixos-rebuild build --flake .#${{ matrix.target }}'
+        run: nix build .#nixosConfigurations.${{ matrix.target }}.config.system.build.toplevel -L
