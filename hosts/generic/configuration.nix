@@ -41,6 +41,17 @@ in
         (
           { lib, ... }:
           {
+            # Keep VM Codex state local/writable.
+            home.activation.ensureWritableCodexHome = lib.hm.dag.entryBefore [ "linkGeneration" ] ''
+              if [ -L "$HOME/.codex" ]; then
+                rm -f "$HOME/.codex"
+              fi
+              if [ -L "$HOME/.codex/auth.json" ]; then
+                rm -f "$HOME/.codex/auth.json"
+              fi
+              mkdir -p "$HOME/.codex"
+              chmod 700 "$HOME/.codex"
+            '';
             programs.starship.settings = {
               format = lib.mkForce "\${custom.vm_indicator}$all";
               custom.vm_indicator = {
