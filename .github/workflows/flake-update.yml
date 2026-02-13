@@ -78,8 +78,10 @@ jobs:
           EOF
 
           mapfile -t updates < <(
-            jq -r -n --argfile old "$OLD_LOCKFILE" --argfile new "$NEW_LOCKFILE" '
-              $new.nodes
+            jq -r -s '
+              .[0] as $old
+              | .[1] as $new
+              | $new.nodes
               | keys_unsorted[]
               | . as $name
               | ($old.nodes[$name] // {}) as $old_node
@@ -92,7 +94,7 @@ jobs:
               | ($new_node.locked.repo // $new_node.original.repo // "") as $repo
               | select($type == "github" and $owner != "" and $repo != "")
               | "\($name)\t\($owner)\t\($repo)\t\($old_rev)\t\($new_rev)"
-            ' | sort
+            ' "$OLD_LOCKFILE" "$NEW_LOCKFILE" | sort
           )
 
           if [ "${#updates[@]}" -eq 0 ]; then
