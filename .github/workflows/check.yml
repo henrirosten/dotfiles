@@ -20,6 +20,8 @@ jobs:
         uses: cachix/install-nix-action@08dcb3a5e62fa31e2da3d490afc4176ef55ecd72 # v30
       - name: Enable Magic Nix Cache
         uses: DeterminateSystems/magic-nix-cache-action@565684385bcd71bad329742eefe8d12f2e765b39 # v13
+        with:
+          use-flakehub: false
       - name: Check .nix formatting
         run: nix fmt -- --fail-on-change
       - name: Check nix flake show runs successfully
@@ -47,6 +49,8 @@ jobs:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: Enable Magic Nix Cache
         uses: DeterminateSystems/magic-nix-cache-action@565684385bcd71bad329742eefe8d12f2e765b39 # v13
+        with:
+          use-flakehub: false
       - name: Print runner system info
         run: nix-shell --quiet -p inxi --run 'inxi -c0 --width -1 --basic --memory-short'
       - name: Build target '${{ matrix.target }}'

@@ -35,6 +35,8 @@ jobs:
 
       - name: Enable Magic Nix Cache
         uses: DeterminateSystems/magic-nix-cache-action@565684385bcd71bad329742eefe8d12f2e765b39 # v13
+        with:
+          use-flakehub: false
 
       - name: Snapshot lockfile before update
         run: cp flake.lock "${{ runner.temp }}/flake.lock.before"
@@ -148,6 +150,8 @@ jobs:
 
       - name: Enable Magic Nix Cache
         uses: DeterminateSystems/magic-nix-cache-action@565684385bcd71bad329742eefe8d12f2e765b39 # v13
+        with:
+          use-flakehub: false
 
       - name: Run x1 VM codex smoke check
         run: nix build .#checks.x86_64-linux.x1-vm-codex-smoke -L
