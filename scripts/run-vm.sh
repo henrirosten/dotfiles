@@ -99,4 +99,4 @@ cleanup() {
 
 trap cleanup EXIT INT TERM
 
-exec "@vmRunner@" "$@"
+"@vmRunner@" "$@"
