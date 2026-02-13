@@ -1,11 +1,11 @@
-name: bootstrap ubuntu
+name: bootstrap nix
 
 on:
   workflow_dispatch:
   pull_request:
     paths:
-      - "bootstrap-ubuntu.sh"
-      - ".github/workflows/bootstrap-ubuntu.yml"
+      - "bootstrap-nix.sh"
+      - ".github/workflows/bootstrap-nix.yml"
       - "flake.nix"
       - "flake.lock"
       - "modules/home/**"
@@ -28,10 +28,10 @@ jobs:
           sudo apt-get install -y shellcheck shfmt
 
       - name: Run shellcheck
-        run: shellcheck bootstrap-ubuntu.sh
+        run: shellcheck bootstrap-nix.sh
 
       - name: Run shfmt check
-        run: shfmt -d -i 2 bootstrap-ubuntu.sh
+        run: shfmt -d -i 2 bootstrap-nix.sh
 
   bootstrap-integration:
     runs-on: ${{ matrix.os }}
@@ -63,14 +63,14 @@ jobs:
         run: |
           set -euo pipefail
           export DEBIAN_FRONTEND=noninteractive
-          timeout 45m bash ./bootstrap-ubuntu.sh |& tee bootstrap.log
+          timeout 45m bash ./bootstrap-nix.sh |& tee bootstrap.log
 
       - name: Assert bootstrap result
         env:
           BOOTSTRAP_OUTCOME: ${{ steps.bootstrap.outcome }}
         run: |
           if [ "$BOOTSTRAP_OUTCOME" != "success" ]; then
-            echo "bootstrap-ubuntu.sh failed"
+            echo "bootstrap-nix.sh failed"
             exit 1
           fi
 

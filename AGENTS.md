@@ -7,7 +7,7 @@
 - `modules/home/` holds reusable home-manager modules (e.g., `git.nix`, `vim.nix`, `shell-common.nix`).
 - `users/` contains user-specific data (e.g., `users/hrosten/hrosten.nix`).
 - `users/hrosten/home.nix` defines the home-manager profile composition.
-- `bootstrap-ubuntu.sh` bootstraps Nix on Ubuntu for home-manager usage.
+- `bootstrap-nix.sh` bootstraps Nix for home-manager usage.
 
 ## Build, Test, and Development Commands
 - `nix-shell`: enter the dev shell with pre-commit hooks enabled.
@@ -16,7 +16,7 @@
 - `nixos-rebuild build --flake .#hostname`: build a host config (use `x1` or `t480`).
 - `sudo nixos-rebuild switch --flake .#hostname`: apply a host config.
 - `home-manager switch --flake .#hrosten`: apply the standalone home-manager config.
-- `./bootstrap-ubuntu.sh`: install Nix on Ubuntu, then use home-manager.
+- `./bootstrap-nix.sh`: install Nix, then use home-manager.
 
 ## Coding Style & Naming Conventions
 - Nix: use `nixfmt` formatting; keep module files small and focused.

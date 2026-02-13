@@ -71,7 +71,7 @@ nix run .#x1-vm -- --ram-mb 2048 --cpus 2 --disk-size 16G --disk-image ./x1.qcow
 
 Install Nix either from <https://nixos.org/download> or with:
 ```bash
-./bootstrap-ubuntu.sh
+./bootstrap-nix.sh
 ```
 
 Then apply home-manager profile:
@@ -108,5 +108,5 @@ modules/
 users/                       # User-specific modules and HM composition
 scripts/
   run-vm.sh                  # VM runner template used by flake VM apps
-bootstrap-ubuntu.sh          # Nix bootstrap helper for Ubuntu
+bootstrap-nix.sh             # Nix bootstrap helper script
 ```
