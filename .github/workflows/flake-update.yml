@@ -32,6 +32,9 @@ jobs:
             experimental-features = nix-command flakes
             system-features = nixos-test benchmark big-parallel kvm
 
+      - name: Snapshot lockfile before update
+        run: cp flake.lock "${{ runner.temp }}/flake.lock.before"
+
       - name: Update all flake inputs
         run: nix flake update
 
@@ -48,6 +51,57 @@ jobs:
         if: steps.changes.outputs.changed == 'true'
         run: nix build .#checks.x86_64-linux.x1-vm-codex-smoke -L
 
+      - name: Generate pull request body
+        id: pr_body
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          OLD_LOCKFILE: ${{ runner.temp }}/flake.lock.before
+          NEW_LOCKFILE: flake.lock
+          BODY_FILE: ${{ runner.temp }}/flake-update-pr-body.md
+        run: |
+          set -euo pipefail
+
+          cat > "$BODY_FILE" <<'EOF'
+          Automated flake input update.
+
+          - Updated all flake inputs with `nix flake update`.
+          - Verified `nix build .#checks.x86_64-linux.x1-vm-codex-smoke -L`.
+
+          ### Updated Inputs
+          EOF
+
+          mapfile -t updates < <(
+            jq -r -n --argfile old "$OLD_LOCKFILE" --argfile new "$NEW_LOCKFILE" '
+              $new.nodes
+              | keys_unsorted[]
+              | . as $name
+              | ($old.nodes[$name] // {}) as $old_node
+              | ($new.nodes[$name] // {}) as $new_node
+              | ($old_node.locked.rev // "") as $old_rev
+              | ($new_node.locked.rev // "") as $new_rev
+              | select($old_rev != "" and $new_rev != "" and $old_rev != $new_rev)
+              | ($new_node.locked.type // $new_node.original.type // "") as $type
+              | ($new_node.locked.owner // $new_node.original.owner // "") as $owner
+              | ($new_node.locked.repo // $new_node.original.repo // "") as $repo
+              | select($type == "github" and $owner != "" and $repo != "")
+              | "\($name)\t\($owner)\t\($repo)\t\($old_rev)\t\($new_rev)"
+            ' | sort
+          )
+
+          if [ "${#updates[@]}" -eq 0 ]; then
+            echo "- No GitHub commit revision changes detected." >> "$BODY_FILE"
+          else
+            for row in "${updates[@]}"; do
+              IFS=$'\t' read -r name owner repo old_rev new_rev <<<"$row"
+              repo_url="https://github.com/${owner}/${repo}"
+              old_short="${old_rev:0:7}"
+              new_short="${new_rev:0:7}"
+              echo "- \`${name}\`: [\`${owner}/${repo}\`](${repo_url}) [\`${old_short}\`](${repo_url}/commit/${old_rev}) -> [\`${new_short}\`](${repo_url}/commit/${new_rev}) ([compare](${repo_url}/compare/${old_rev}...${new_rev}))" >> "$BODY_FILE"
+            done
+          fi
+
+          echo "path=$BODY_FILE" >> "$GITHUB_OUTPUT"
+
       - name: Create pull request
         id: cpr
         if: steps.changes.outputs.changed == 'true'
@@ -62,11 +116,7 @@ jobs:
           signoff: true
           commit-message: "Flake update"
           title: "Flake update"
-          body: |
-            Automated flake input update.
-
-            - Updated all flake inputs with `nix flake update`.
-            - Verified `nix build .#checks.x86_64-linux.x1-vm-codex-smoke -L`.
+          body-path: ${{ steps.pr_body.outputs.path }}
 
       - name: PR creation fallback info
         if: steps.changes.outputs.changed == 'true' && steps.cpr.outcome == 'failure'
