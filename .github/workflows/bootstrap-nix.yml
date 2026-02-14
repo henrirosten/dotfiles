@@ -75,9 +75,16 @@ jobs:
           fi
 
       - name: Enable Magic Nix Cache
+        id: magic_nix_cache
+        continue-on-error: true
         uses: DeterminateSystems/magic-nix-cache-action@565684385bcd71bad329742eefe8d12f2e765b39 # v13
         with:
           use-flakehub: false
+
+      - name: Note Magic Nix Cache failure
+        if: steps.magic_nix_cache.outcome == 'failure'
+        run: |
+          echo "::warning::Magic Nix Cache failed to import cache paths; continuing without cache."
 
       - name: Verify nix is installed and configured
         run: |
