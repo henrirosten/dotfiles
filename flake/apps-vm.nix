@@ -91,17 +91,9 @@ forAllSystems (
                 security.auditd.enable = lib.mkForce false;
                 # Disable systemd-ssh-generator auto sockets to avoid AF_VSOCK probe errors in VM logs.
                 boot.kernelParams = lib.mkAfter [ "systemd.ssh_auto=0" ];
-                # Keep codex-cli available in VM even when HM activation is disabled.
-                environment.systemPackages = lib.mkAfter [
-                  inputs.codex-cli-nix.packages.${system}.default
-                ];
                 systemd.tmpfiles.rules = lib.optionals isGeneric [
                   "d /mnt/codex-bootstrap 0755 root root -"
                 ];
-              }
-              // lib.optionalAttrs (!isGeneric) {
-                # Home Manager activation can take minutes in VM boot; disable it for fast test boots.
-                systemd.services."home-manager-${username}".enable = lib.mkForce false;
               }
               // lib.optionalAttrs isGeneric {
                 security.sudo.wheelNeedsPassword = lib.mkForce false;
