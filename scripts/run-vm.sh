@@ -90,6 +90,13 @@ EOF
   esac
 done
 
+if command -v ssh-keygen >/dev/null 2>&1; then
+  # All VM apps currently forward guest SSH to host 127.0.0.1:2222.
+  # Remove stale keys before boot to avoid host key mismatch warnings
+  # when switching VM targets or recreating ephemeral VM disks.
+  ssh-keygen -R "[127.0.0.1]:2222" >/dev/null 2>&1 || true
+fi
+
 export NIX_DISK_IMAGE="$disk_image"
 if [ "$override_ram" -eq 1 ]; then
   export QEMU_OPTS="${QEMU_OPTS:+$QEMU_OPTS }-m $ram_mb"
