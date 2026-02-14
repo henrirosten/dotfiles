@@ -40,6 +40,14 @@ forAllSystems (
                     mountHostNixStore = lib.mkForce true;
                     writableStoreUseTmpfs = lib.mkForce false;
                     restrictNetwork = lib.mkForce false;
+                    forwardPorts = [
+                      {
+                        from = "host";
+                        host.address = "127.0.0.1";
+                        host.port = 2222;
+                        guest.port = 22;
+                      }
+                    ];
                     qemu.consoles = lib.mkForce [ "ttyS0,115200n8" ];
                     qemu.options = lib.mkAfter (
                       [
