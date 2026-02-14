@@ -49,18 +49,14 @@ forAllSystems (
                       }
                     ];
                     qemu.consoles = lib.mkForce [ "ttyS0,115200n8" ];
-                    qemu.options = lib.mkAfter (
-                      [
-                        "-display none"
-                        "-serial mon:stdio"
-                        "-device virtio-balloon"
-                        "-enable-kvm"
-                      ]
-                      ++ lib.optionals isGeneric [
-                        # Ask QEMU to self-restrict host-side capabilities.
-                        "-sandbox on,obsolete=deny,elevateprivileges=deny,spawn=deny,resourcecontrol=deny"
-                      ]
-                    );
+                    qemu.options = lib.mkAfter ([
+                      "-display none"
+                      "-serial mon:stdio"
+                      "-device virtio-balloon"
+                      "-enable-kvm"
+                      # Ask QEMU to self-restrict host-side capabilities.
+                      "-sandbox on,obsolete=deny,elevateprivileges=deny,spawn=deny,resourcecontrol=deny"
+                    ]);
                     sharedDirectories =
                       if isGeneric then
                         lib.mkForce {
@@ -81,7 +77,7 @@ forAllSystems (
                         { };
                   };
                 };
-                services.getty.autologinUser = lib.mkForce (if isGeneric then username else "root");
+                services.getty.autologinUser = lib.mkForce username;
                 services.openssh.settings.X11Forwarding = lib.mkForce true;
                 programs.ssh.setXAuthLocation = lib.mkForce true;
                 # Keep VM boot logs deterministic for CI/smoke runs: auditd emits
@@ -89,20 +85,23 @@ forAllSystems (
                 # not rely on kernel audit trails inside test VMs.
                 security.audit.enable = lib.mkForce false;
                 security.auditd.enable = lib.mkForce false;
+                # Laptop-oriented throttling service can fail in QEMU guests and
+                # cause degraded boot state; keep it disabled in VM variants.
+                services.throttled.enable = lib.mkForce false;
+                security.sudo.wheelNeedsPassword = lib.mkForce false;
                 # Disable systemd-ssh-generator auto sockets to avoid AF_VSOCK probe errors in VM logs.
                 boot.kernelParams = lib.mkAfter [ "systemd.ssh_auto=0" ];
-                systemd.tmpfiles.rules = lib.optionals isGeneric [
-                  "d /mnt/codex-bootstrap 0755 root root -"
-                ];
-              }
-              // lib.optionalAttrs isGeneric {
-                security.sudo.wheelNeedsPassword = lib.mkForce false;
                 # VM-friendly free-space thresholds to avoid activation stalls
                 # with tmpfs-backed writable store overlays.
                 nix.settings = {
                   min-free = lib.mkForce (128 * 1024 * 1024);
                   max-free = lib.mkForce (512 * 1024 * 1024);
                 };
+                systemd.tmpfiles.rules = lib.optionals isGeneric [
+                  "d /mnt/codex-bootstrap 0755 root root -"
+                ];
+              }
+              // lib.optionalAttrs isGeneric {
                 # Keep bootstrap share read-only and non-executable in guest.
                 fileSystems."/mnt/codex-bootstrap".options = lib.mkAfter [
                   "ro"
