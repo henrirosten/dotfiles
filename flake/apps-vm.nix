@@ -84,6 +84,13 @@ forAllSystems (
                 services.getty.autologinUser = lib.mkForce (if isGeneric then username else "root");
                 services.openssh.settings.X11Forwarding = lib.mkForce true;
                 programs.ssh.setXAuthLocation = lib.mkForce true;
+                # Keep VM boot logs deterministic for CI/smoke runs: auditd emits
+                # spurious startup errors in these ephemeral QEMU guests and we do
+                # not rely on kernel audit trails inside test VMs.
+                security.audit.enable = lib.mkForce false;
+                security.auditd.enable = lib.mkForce false;
+                # Disable systemd-ssh-generator auto sockets to avoid AF_VSOCK probe errors in VM logs.
+                boot.kernelParams = lib.mkAfter [ "systemd.ssh_auto=0" ];
                 # Keep codex-cli available in VM even when HM activation is disabled.
                 environment.systemPackages = lib.mkAfter [
                   inputs.codex-cli-nix.packages.${system}.default

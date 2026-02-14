@@ -22,6 +22,7 @@ in
   networking.hostName = "generic";
 
   services.getty.autologinUser = hrosten.user.username;
+  programs.dconf.enable = true;
   security.sudo.wheelNeedsPassword = false;
   system.autoUpgrade.dates = "weekly";
 
