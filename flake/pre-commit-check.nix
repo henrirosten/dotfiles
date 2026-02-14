@@ -6,8 +6,20 @@ inputs.git-hooks-nix.lib.${system}.run {
   hooks = {
     # lint commit messages
     gitlint.enable = true;
+    # lint GitHub Actions workflows
+    actionlint.enable = true;
+    # validate YAML syntax
+    check-yaml.enable = true;
+    # prevent committing private keys
+    detect-private-keys.enable = true;
+    # prevent committing unresolved merge markers
+    check-merge-conflicts.enable = true;
     # fix end-of-files
     end-of-file-fixer.enable = true;
+    # remove trailing whitespace
+    trim-trailing-whitespace.enable = true;
+    # normalize line endings
+    mixed-line-endings.enable = true;
     # spell check
     typos.enable = true;
     # nix formatter
