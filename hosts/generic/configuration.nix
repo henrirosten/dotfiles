@@ -38,6 +38,7 @@ in
     {
       imports = [
         ../../users/hrosten/home.nix
+        outputs.homeModules.gui-extras
         (
           { lib, ... }:
           {
