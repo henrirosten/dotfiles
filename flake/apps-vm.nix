@@ -82,6 +82,8 @@ forAllSystems (
                   };
                 };
                 services.getty.autologinUser = lib.mkForce (if isGeneric then username else "root");
+                services.openssh.settings.X11Forwarding = lib.mkForce true;
+                programs.ssh.setXAuthLocation = lib.mkForce true;
                 # Keep codex-cli available in VM even when HM activation is disabled.
                 environment.systemPackages = lib.mkAfter [
                   inputs.codex-cli-nix.packages.${system}.default
