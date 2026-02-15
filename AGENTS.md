@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 - `flake.nix` defines inputs/outputs, NixOS configs, home-manager configs, checks, and formatter.
-- `hosts/` contains per-machine configs (`x1`, `t480`) with `configuration.nix` and `hardware-configuration.nix`.
+- `hosts/` contains per-machine configs (`x1`, `t480`, `generic`) with `configuration.nix` and `hardware-configuration.nix`.
 - `modules/nixos/` holds reusable NixOS modules (e.g., `host-common.nix`, `gui.nix`).
 - `modules/home/` holds reusable home-manager modules (e.g., `git.nix`, `vim.nix`, `shell-common.nix`).
 - `users/` contains user-specific data (e.g., `users/hrosten/hrosten.nix`).
@@ -10,10 +10,12 @@
 - `bootstrap-nix.sh` bootstraps Nix for home-manager usage.
 
 ## Build, Test, and Development Commands
+- `nix develop`: enter the flake dev shell with pre-commit hooks enabled.
 - `nix-shell`: enter the dev shell with pre-commit hooks enabled.
 - `nix fmt`: run formatter and linters via the flake formatter.
 - `nix flake check --option allow-import-from-derivation false`: run flake checks (pre-commit hooks).
-- `nixos-rebuild build --flake .#hostname`: build a host config (use `x1` or `t480`).
+- `nix flake check --option allow-import-from-derivation false --no-build`: run eval checks without building derivations.
+- `nixos-rebuild build --flake .#hostname`: build a host config (use `x1`, `t480`, or `generic`).
 - `sudo nixos-rebuild switch --flake .#hostname`: apply a host config.
 - `home-manager switch --flake .#hrosten`: apply the standalone home-manager config.
 - `./bootstrap-nix.sh`: install Nix, then use home-manager.
@@ -40,3 +42,4 @@ There is no standalone unit-test suite; validation is check-driven.
 ## Agent-Specific Instructions
 - If you use automated tools, prefer `nix fmt` and `nix flake check` to validate changes.
 - See `CLAUDE.md` for additional workflow details and architecture notes.
+- See `CONTRIBUTING.md` for contributor-facing workflow and PR expectations.
