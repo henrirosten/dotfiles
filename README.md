@@ -79,10 +79,23 @@ Show runner options:
 nix run .#x1-vm -- --help
 ```
 
+Default behavior: VM disk images are deleted on exit; add `--keep-disk` to persist them.
+
 Example custom resources:
 ```bash
 nix run .#x1-vm -- --ram-mb 2048 --cpus 2 --disk-size 16G --disk-image ./x1.qcow2 --keep-disk
 ```
+
+Share a host directory with any VM app (mounted writable at `/mnt/host-share` in the guest):
+```bash
+nix run .#generic-vm -- --share-dir /path/to/host/dir
+```
+When `--share-dir` is provided, the VM autologin shell starts in `/mnt/host-share`.
+
+Environment overrides:
+- `NIX_DISK_IMAGE` (default: `./<vm-name>.qcow2`)
+- `VM_HOST_SHARE_DIR` (same effect as `--share-dir`)
+- `CODEX_HOST_AUTH_FILE` (default: `$HOME/.codex/auth.json`)
 
 ### Run Graphical Apps On `generic-vm` Over SSH
 

@@ -7,19 +7,16 @@ cpus="@defaultCpus@"
 disk_size="@defaultDiskSize@"
 disk_image="${NIX_DISK_IMAGE:-@defaultDiskImage@}"
 host_codex_auth_file="${CODEX_HOST_AUTH_FILE:-$HOME/.codex/auth.json}"
+host_share_dir="${VM_HOST_SHARE_DIR:-}"
 managed_codex_bootstrap_dir=0
-codex_bootstrap_dir="${CODEX_BOOTSTRAP_DIR:-}"
+codex_bootstrap_dir=""
 override_ram=0
 override_cpus=0
 override_disk_size=0
 
 umask 077
 
-if [ -n "${VM_KEEP_DISK:-}" ]; then
-  cleanup_disk=0
-fi
-
-if [ "$bootstrap_codex_auth" -eq 1 ] && [ -z "$codex_bootstrap_dir" ]; then
+if [ "$bootstrap_codex_auth" -eq 1 ]; then
   codex_bootstrap_dir="$(@mktemp@ -d -t @vmName@-codex-auth.XXXXXX)"
   managed_codex_bootstrap_dir=1
   if [ -f "$host_codex_auth_file" ]; then
@@ -27,7 +24,7 @@ if [ "$bootstrap_codex_auth" -eq 1 ] && [ -z "$codex_bootstrap_dir" ]; then
   fi
 fi
 if [ "$bootstrap_codex_auth" -eq 1 ] && [ -n "$codex_bootstrap_dir" ]; then
-  export CODEX_BOOTSTRAP_DIR="$codex_bootstrap_dir"
+  export CODEX_VM_BOOTSTRAP_DIR="$codex_bootstrap_dir"
 fi
 
 while [ "$#" -gt 0 ]; do
@@ -36,12 +33,12 @@ while [ "$#" -gt 0 ]; do
     cleanup_disk=0
     shift
     ;;
-  --delete-disk)
-    cleanup_disk=1
-    shift
-    ;;
   --disk-image)
     disk_image="$2"
+    shift 2
+    ;;
+  --share-dir)
+    host_share_dir="$2"
     shift 2
     ;;
   --ram-mb)
@@ -65,18 +62,16 @@ Usage: nix run .#@vmName@-vm -- [OPTIONS] [-- RUNNER_ARGS...]
 
 Options:
   --keep-disk        Keep disk image after VM exits
-  --delete-disk      Remove disk image on VM exit
   --ram-mb MB        RAM in MiB (default: @defaultRamMb@)
   --cpus N           Number of CPUs (default: @defaultCpus@)
   --disk-size SIZE   Disk size (e.g. 8G, 16384M; default: @defaultDiskSize@)
   --disk-image PATH  Disk image path (default: @defaultDiskImage@)
+  --share-dir PATH   Share host directory at /mnt/host-share in guest
 
 Environment:
-  VM_KEEP_DISK=1     Keep disk image after VM exits
-  NIX_DISK_IMAGE     Override disk image path
-  CODEX_HOST_AUTH_FILE  Host auth file for one-way VM bootstrap
-  CODEX_BOOTSTRAP_DIR   Host dir used for one-way VM auth bootstrap
-  Default behavior: disk image is @defaultCleanupBehavior@ on VM exit
+  NIX_DISK_IMAGE     Override disk image path (default: @defaultDiskImage@)
+  VM_HOST_SHARE_DIR  Host directory shared to guest at /mnt/host-share
+  CODEX_HOST_AUTH_FILE  Host auth file for one-way VM bootstrap (default: $HOME/.codex/auth.json)
 EOF
     exit 0
     ;;
@@ -98,6 +93,25 @@ if command -v ssh-keygen >/dev/null 2>&1; then
 fi
 
 export NIX_DISK_IMAGE="$disk_image"
+if [ -n "$host_share_dir" ]; then
+  if [ ! -d "$host_share_dir" ]; then
+    echo "--share-dir must point to an existing directory: $host_share_dir" >&2
+    exit 2
+  fi
+  host_share_dir="$(cd "$host_share_dir" && pwd -P)"
+  case "$host_share_dir" in
+  *","*)
+    echo "--share-dir must not contain commas (QEMU option separator): $host_share_dir" >&2
+    exit 2
+    ;;
+  *[[:space:]]*)
+    echo "--share-dir must not contain whitespace: $host_share_dir" >&2
+    exit 2
+    ;;
+  esac
+  export VM_HOST_SHARE_DIR="$host_share_dir"
+  export QEMU_OPTS="${QEMU_OPTS:+$QEMU_OPTS }-virtfs local,path=$host_share_dir,mount_tag=host-share,security_model=none,multidevs=remap"
+fi
 if [ "$override_ram" -eq 1 ]; then
   export QEMU_OPTS="${QEMU_OPTS:+$QEMU_OPTS }-m $ram_mb"
 fi

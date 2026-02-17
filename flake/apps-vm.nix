@@ -27,7 +27,7 @@ forAllSystems (
         modules = [
           (
             { lib, ... }:
-            (
+            lib.mkMerge [
               {
                 virtualisation.vmVariant = {
                   virtualisation = {
@@ -68,7 +68,7 @@ forAllSystems (
                           # Keep only bootstrap auth as a transient host share.
                           codex-bootstrap = {
                             # One-way bootstrap source prepared by run-vm.sh.
-                            source = ''"''${CODEX_BOOTSTRAP_DIR:-$TMPDIR/xchg}"'';
+                            source = ''"''${CODEX_VM_BOOTSTRAP_DIR:-$TMPDIR/xchg}"'';
                             target = "/mnt/codex-bootstrap";
                             securityModel = "none";
                           };
@@ -97,11 +97,50 @@ forAllSystems (
                   min-free = lib.mkForce (128 * 1024 * 1024);
                   max-free = lib.mkForce (512 * 1024 * 1024);
                 };
-                systemd.tmpfiles.rules = lib.optionals isGeneric [
+                systemd.tmpfiles.rules = [
+                  "d /mnt/host-share 0755 ${username} users -"
+                ]
+                ++ lib.optionals isGeneric [
                   "d /mnt/codex-bootstrap 0755 root root -"
                 ];
+                systemd.services.host-share-mount = {
+                  description = "Mount optional host share at /mnt/host-share";
+                  after = [ "local-fs.target" ];
+                  wants = [ "local-fs.target" ];
+                  before = [ "getty.target" ];
+                  wantedBy = [ "multi-user.target" ];
+                  serviceConfig.Type = "oneshot";
+                  script = ''
+                    if ${pkgs.util-linux}/bin/mountpoint -q /mnt/host-share; then
+                      exit 0
+                    fi
+
+                    for tag in /sys/bus/virtio/drivers/9pnet_virtio/virtio*/mount_tag; do
+                      if [ -r "$tag" ] && [ "$(${pkgs.coreutils}/bin/cat "$tag")" = "host-share" ]; then
+                        ${pkgs.util-linux}/bin/mount -t 9p \
+                          -o trans=virtio,version=9p2000.L,rw,msize=104857600,nosuid,nodev \
+                          host-share /mnt/host-share
+                        user_group="$(${pkgs.coreutils}/bin/id -gn ${username} 2>/dev/null || echo users)"
+                        ${pkgs.coreutils}/bin/chown ${username}:"$user_group" /mnt/host-share || true
+                        exit 0
+                      fi
+                    done
+                  '';
+                };
+                environment.loginShellInit = lib.mkAfter ''
+                  if [ "$USER" = "${username}" ] && [ -z "''${SSH_CONNECTION:-}" ]; then
+                    tty_path="$(tty 2>/dev/null || true)"
+                    case "$tty_path" in
+                      /dev/tty1|/dev/ttyS0)
+                        if ${pkgs.util-linux}/bin/mountpoint -q /mnt/host-share; then
+                          cd /mnt/host-share || true
+                        fi
+                        ;;
+                    esac
+                  fi
+                '';
               }
-              // lib.optionalAttrs isGeneric {
+              (lib.optionalAttrs isGeneric {
                 # Keep bootstrap share read-only and non-executable in guest.
                 fileSystems."/mnt/codex-bootstrap".options = lib.mkAfter [
                   "ro"
@@ -134,8 +173,8 @@ forAllSystems (
                     fi
                   '';
                 };
-              }
-            )
+              })
+            ]
           )
         ];
       };
@@ -151,8 +190,7 @@ forAllSystems (
           defaultCpus = toString vcpus;
           defaultDiskSize = "${toString diskGb}G";
           defaultDiskImage = "./${name}.qcow2";
-          defaultCleanupDisk = if isGeneric then "0" else "1";
-          defaultCleanupBehavior = if isGeneric then "kept" else "deleted";
+          defaultCleanupDisk = "1";
           bootstrapCodexAuth = if isGeneric then "1" else "0";
           mktemp = "${pkgs.coreutils}/bin/mktemp";
           qemuImg = "${pkgs.qemu}/bin/qemu-img";
