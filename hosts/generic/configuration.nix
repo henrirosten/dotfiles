@@ -54,15 +54,6 @@ in
               mkdir -p "$HOME/.codex"
               chmod 700 "$HOME/.codex"
             '';
-            programs.starship.settings = {
-              format = lib.mkForce "\${custom.vm_indicator}$all";
-              custom.vm_indicator = {
-                when = true;
-                command = "echo vm";
-                format = "[[$output](bold yellow)]($style) ";
-                style = "bold yellow";
-              };
-            };
           }
         )
       ];

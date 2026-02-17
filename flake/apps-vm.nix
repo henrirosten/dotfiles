@@ -139,6 +139,17 @@ forAllSystems (
                     esac
                   fi
                 '';
+                home-manager.users.${username} = {
+                  programs.starship.settings = {
+                    format = lib.mkForce "\${custom.vm_indicator}$all";
+                    custom.vm_indicator = {
+                      when = true;
+                      command = "echo vm";
+                      format = "[[$output](bold yellow)]($style) ";
+                      style = "bold yellow";
+                    };
+                  };
+                };
               }
               (lib.optionalAttrs isGeneric {
                 # Keep bootstrap share read-only and non-executable in guest.
