@@ -5,7 +5,7 @@
   ...
 }:
 let
-  hrosten = (import ../../users/hrosten/hrosten.nix);
+  hrosten = import ../../users/hrosten/hrosten.nix;
 in
 {
   imports = [
