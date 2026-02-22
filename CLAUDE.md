@@ -61,14 +61,23 @@ nix run .#generic-vm
 
 ## Architecture
 
-- `flake.nix` - Main entry point defining inputs, outputs, NixOS configurations, and home-manager configurations
+- `flake.nix` - Main entry point; delegates output construction to `flake/` helpers
+- `flake/` - Split flake output builders (`apps-vm.nix`, `nixos-configurations.nix`, `home-configurations.nix`, `checks.nix`, `pre-commit-check.nix`, `formatter.nix`, `dev-shells.nix`)
 - `hosts/` - Per-machine configurations (`x1`, `t480`, `generic`), each with `configuration.nix` and `hardware-configuration.nix`
 - `users/` - User-specific NixOS modules defining user accounts (name, username, email, ssh keys, shell, groups)
+- `users/hrosten/home.nix` - User profile composition for hrosten home-manager setup
 - `modules/nixos/` - Reusable NixOS modules (`common-nix`, `gui`, `host-common`, `laptop`, `ssh`, `remotebuild`)
 - `modules/home/` - Reusable home-manager modules (`bash`, `zsh`, `git`, `vim`, `starship`, `ssh-conf`, `gui-extras`, `vscode`, `shell-common`, `codex-cli`)
-- `users/hrosten/home.nix` - User profile composition for hrosten home-manager setup
+- `scripts/run-vm.sh` - VM runner template used by flake VM apps
+- `bootstrap-nix.sh` - Nix installer helper for non-NixOS systems
 
 NixOS modules are exported via `outputs.nixosModules`. Home-manager modules are exported via `outputs.homeModules`.
+
+## Style
+
+- Nix files: `nixfmt` formatting
+- Bash files: `shfmt` (2-space indent) and `shellcheck`
+- File/module naming: kebab-case (e.g., `shell-common.nix`, `host-common.nix`)
 
 ## Linting/Formatting
 
@@ -80,3 +89,16 @@ The flake uses git-hooks-nix for pre-commit checks including:
 - `shfmt` - Bash formatter (2-space indent)
 - `typos` - Spell checker
 - `gitlint` - Commit message linter
+- `actionlint` - GitHub Actions workflow linter
+- `check-yaml` - YAML syntax validator
+- `check-merge-conflicts` - Prevents committing unresolved merge markers
+- `detect-private-keys` - Prevents committing private keys
+- `end-of-file-fixer` - Ensures files end with a newline
+- `trim-trailing-whitespace` - Removes trailing whitespace
+- `mixed-line-endings` - Normalizes line endings
+
+## Commit Conventions
+
+- Short imperative subject (e.g., "Add vscode", "Refactor home modules")
+- One change/theme per commit
+- Include a `Signed-off-by:` trailer (use `git commit --signoff`)
